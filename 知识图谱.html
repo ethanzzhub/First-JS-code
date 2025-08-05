@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI知识图谱 - 智能教学系统</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Chart.js用于数据可视化 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- 引入Vis.js用于知识图谱可视化 -->
+  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/dist/vis-network.min.js"></script>
+  
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#722ED1',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#F5222D',
+            neutral: {
+              100: '#F5F7FA',
+              200: '#E4E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+              700: '#1D2129',
+            }
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'card': '0 2px 14px 0 rgba(0, 0, 0, 0.06)',
+            'hover': '0 6px 20px 0 rgba(0, 0, 0, 0.1)',
+          }
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .transition-bg {
+        transition: background-color 0.3s ease;
+      }
+      .transition-transform {
+        transition: transform 0.3s ease;
+      }
+      .scrollbar-hide {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .node-hover {
+        @apply hover:shadow-lg transition-all duration-300 cursor-pointer;
+      }
+      .btn-effect {
+        @apply transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col overflow-hidden">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white border-b border-neutral-200 shadow-sm z-30">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <!-- 左侧Logo和标题 -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+              <i class="fa fa-sitemap text-xl"></i>
+            </div>
+            <span class="ml-3 text-lg font-semibold text-neutral-700">智能教学系统</span>
+          </div>
+          <div class="hidden md:flex items-center space-x-6 ml-8">
+            <a href="#" class="text-primary font-medium border-b-2 border-primary py-5">知识图谱</a>
+            <a href="#" class="text-neutral-500 hover:text-primary transition-colors py-5">教案管理</a>
+            <a href="#" class="text-neutral-500 hover:text-primary transition-colors py-5">课程资源</a>
+            <a href="#" class="text-neutral-500 hover:text-primary transition-colors py-5">数据分析</a>
+          </div>
+        </div>
+        
+        <!-- 右侧用户信息和操作 -->
+        <div class="flex items-center space-x-4">
+          <button class="p-2 text-neutral-500 hover:text-primary hover:bg-neutral-100 rounded-full transition-colors">
+            <i class="fa fa-bell-o"></i>
+          </button>
+          <button class="p-2 text-neutral-500 hover:text-primary hover:bg-neutral-100 rounded-full transition-colors">
+            <i class="fa fa-cog"></i>
+          </button>
+          <div class="flex items-center space-x-2">
+            <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="w-8 h-8 rounded-full object-cover border border-neutral-200">
+            <span class="hidden md:inline text-sm font-medium">张教授</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="flex flex-1 overflow-hidden">
+    <!-- 左侧课程列表 -->
+    <aside class="w-64 bg-white border-r border-neutral-200 flex-shrink-0 hidden md:block overflow-y-auto scrollbar-hide">
+      <div class="p-4 border-b border-neutral-200">
+        <div class="relative">
+          <input type="text" placeholder="搜索课程..." class="w-full py-2 pl-10 pr-4 rounded-lg bg-neutral-100 border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm">
+          <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+        </div>
+      </div>
+      
+      <div class="p-4">
+        <h3 class="text-xs uppercase text-neutral-400 font-semibold mb-3">我的课程</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center p-2 rounded-lg bg-primary/10 text-primary text-sm">
+              <i class="fa fa-book mr-3 w-5 text-center"></i>
+              <span>数据结构与算法</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <i class="fa fa-book mr-3 w-5 text-center"></i>
+              <span>人工智能导论</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <i class="fa fa-book mr-3 w-5 text-center"></i>
+              <span>机器学习基础</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <i class="fa fa-book mr-3 w-5 text-center"></i>
+              <span>计算机网络</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <i class="fa fa-book mr-3 w-5 text-center"></i>
+              <span>数据库系统原理</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="p-4 border-t border-neutral-200">
+        <h3 class="text-xs uppercase text-neutral-400 font-semibold mb-3">知识图谱分类</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <span class="flex items-center">
+                <i class="fa fa-sitemap mr-3 w-5 text-center"></i>
+                <span>完整课程图谱</span>
+              </span>
+              <span class="bg-neutral-200 text-neutral-500 text-xs px-2 py-0.5 rounded-full">8</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <span class="flex items-center">
+                <i class="fa fa-cube mr-3 w-5 text-center"></i>
+                <span>章节知识模块</span>
+              </span>
+              <span class="bg-neutral-200 text-neutral-500 text-xs px-2 py-0.5 rounded-full">24</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-neutral-100 text-neutral-600 text-sm transition-colors">
+              <span class="flex items-center">
+                <i class="fa fa-lightbulb-o mr-3 w-5 text-center"></i>
+                <span>核心知识点</span>
+              </span>
+              <span class="bg-neutral-200 text-neutral-500 text-xs px-2 py-0.5 rounded-full">56</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="absolute bottom-4 left-4 right-4 md:left-0 md:right-auto md:w-56 px-4">
+        <button class="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary/90 text-white py-2.5 px-4 rounded-lg transition-colors btn-effect">
+          <i class="fa fa-plus"></i>
+          <span>新建知识图谱</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- 中间知识图谱展示区 -->
+    <section class="flex-1 flex flex-col overflow-hidden">
+      <!-- 图谱控制栏 -->
+      <div class="bg-white border-b border-neutral-200 p-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <button class="md:hidden p-2 text-neutral-500 hover:bg-neutral-100 rounded-lg">
+            <i class="fa fa-bars"></i>
+          </button>
+          <h2 class="text-lg font-semibold">数据结构与算法 - 知识图谱</h2>
+          <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">已保存</span>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <div class="hidden md:flex items-center space-x-1 bg-neutral-100 rounded-lg p-1">
+            <button class="p-1.5 px-3 rounded bg-white shadow-sm text-neutral-700 text-sm">
+              <i class="fa fa-search-plus mr-1"></i> 放大
+            </button>
+            <button class="p-1.5 px-3 rounded hover:bg-white/50 text-neutral-500 text-sm transition-colors">
+              <i class="fa fa-search-minus mr-1"></i> 缩小
+            </button>
+            <button class="p-1.5 px-3 rounded hover:bg-white/50 text-neutral-500 text-sm transition-colors">
+              <i class="fa fa-arrows-alt mr-1"></i> 适配
+            </button>
+            <button class="p-1.5 px-3 rounded hover:bg-white/50 text-neutral-500 text-sm transition-colors">
+              <i class="fa fa-random mr-1"></i> 重排
+            </button>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <button class="flex items-center space-x-1.5 bg-white border border-neutral-200 hover:border-primary text-neutral-600 hover:text-primary py-1.5 px-3 rounded-lg text-sm transition-colors btn-effect">
+              <i class="fa fa-download"></i>
+              <span class="hidden sm:inline">导出</span>
+            </button>
+            <button class="flex items-center space-x-1.5 bg-white border border-neutral-200 hover:border-primary text-neutral-600 hover:text-primary py-1.5 px-3 rounded-lg text-sm transition-colors btn-effect">
+              <i class="fa fa-share-alt"></i>
+              <span class="hidden sm:inline">分享</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 图谱生成与状态区 -->
+      <div class="bg-white/80 backdrop-blur-sm border-b border-neutral-200 p-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <button id="generate-btn" class="flex items-center space-x-1.5 bg-primary hover:bg-primary/90 text-white py-1.5 px-4 rounded-lg text-sm transition-colors btn-effect">
+            <i class="fa fa-magic"></i>
+            <span>AI生成图谱</span>
+          </button>
+          <button class="flex items-center space-x-1.5 bg-white border border-neutral-200 hover:border-primary text-neutral-600 hover:text-primary py-1.5 px-4 rounded-lg text-sm transition-colors btn-effect">
+            <i class="fa fa-edit"></i>
+            <span>编辑模式</span>
+          </button>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-1 text-sm">
+            <span class="text-neutral-500">节点数:</span>
+            <span class="font-medium">24</span>
+          </div>
+          <div class="flex items-center space-x-1 text-sm">
+            <span class="text-neutral-500">关系数:</span>
+            <span class="font-medium">36</span>
+          </div>
+          <div class="hidden md:flex items-center space-x-1 text-sm">
+            <span class="text-neutral-500">最后更新:</span>
+            <span class="font-medium">今天 14:30</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 知识图谱可视化区域 -->
+      <div id="graph-container" class="flex-1 relative bg-gradient-to-br from-neutral-50 to-neutral-100 overflow-hidden">
+        <!-- 知识图谱将通过JavaScript渲染到这里 -->
+        <div class="absolute inset-0 flex items-center justify-center text-neutral-400" id="graph-placeholder">
+          <div class="text-center">
+            <i class="fa fa-sitemap text-5xl mb-3 opacity-30"></i>
+            <p class="text-lg">点击"AI生成图谱"按钮创建知识图谱</p>
+            <p class="text-sm mt-1">或导入已有的知识图谱数据</p>
+          </div>
+        </div>
+        
+        <!-- 图谱加载动画 (默认隐藏) -->
+        <div id="graph-loading" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div class="text-center">
+            <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="text-neutral-600">AI正在生成知识图谱...</p>
+            <p class="text-sm text-neutral-400 mt-1">请稍候，这可能需要几秒钟</p>
+          </div>
+        </div>
+        
+        <!-- 图谱操作提示 (默认隐藏) -->
+        <div id="graph-hint" class="hidden absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm shadow-card rounded-lg p-3 text-sm z-10">
+          <div class="flex items-start">
+            <i class="fa fa-lightbulb-o text-warning mt-0.5 mr-2"></i>
+            <div>
+              <p class="font-medium text-neutral-700">操作提示</p>
+              <p class="text-neutral-500 mt-1">拖拽节点可调整位置，双击空白处添加节点，点击节点可查看详情</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 底部操作栏 -->
+      <div class="bg-white border-t border-neutral-200 p-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <button class="flex items-center space-x-1.5 text-neutral-500 hover:text-danger py-1 px-2 rounded-lg text-sm transition-colors">
+            <i class="fa fa-trash-o"></i>
+            <span class="hidden sm:inline">清空图谱</span>
+          </button>
+          <button class="flex items-center space-x-1.5 text-neutral-500 hover:text-primary py-1 px-2 rounded-lg text-sm transition-colors">
+            <i class="fa fa-history"></i>
+            <span class="hidden sm:inline">撤销</span>
+          </button>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <button class="flex items-center space-x-1.5 bg-white border border-neutral-200 hover:border-primary text-neutral-600 hover:text-primary py-1.5 px-4 rounded-lg text-sm transition-colors btn-effect">
+            <i class="fa fa-eye"></i>
+            <span>预览</span>
+          </button>
+          <button class="flex items-center space-x-1.5 bg-primary hover:bg-primary/90 text-white py-1.5 px-4 rounded-lg text-sm transition-colors btn-effect">
+            <i class="fa fa-save"></i>
+            <span>保存图谱</span>
+          </button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 右侧属性面板 -->
+    <aside class="w-72 bg-white border-l border-neutral-200 flex-shrink-0 hidden lg:block overflow-y-auto scrollbar-hide">
+      <!-- 节点详情面板 -->
+      <div id="node-details" class="p-4 border-b border-neutral-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-neutral-700">节点详情</h3>
+          <button class="text-neutral-400 hover:text-neutral-600">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-neutral-500 mb-1">节点名称</label>
+            <input type="text" value="二叉树" class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm">
+          </div>
+          
+          <div>
+            <label class="block text-xs text-neutral-500 mb-1">节点类型</label>
+            <select class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm bg-white">
+              <option>核心概念</option>
+              <option>知识点</option>
+              <option>章节</option>
+              <option>案例</option>
+              <option>习题</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-xs text-neutral-500 mb-1">节点描述</label>
+            <textarea rows="3" class="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm resize-none">二叉树是每个节点最多有两个子树的树结构，通常子树被称作"左子树"和"右子树"。</textarea>
+          </div>
+          
+          <div>
+            <label class="block text-xs text-neutral-500 mb-1">节点颜色</label>
+            <div class="flex space-x-2 mt-1">
+              <span class="w-6 h-6 rounded-full bg-primary cursor-pointer ring-2 ring-offset-2 ring-primary"></span>
+              <span class="w-6 h-6 rounded-full bg-secondary cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-neutral-300"></span>
+              <span class="w-6 h-6 rounded-full bg-accent cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-neutral-300"></span>
+              <span class="w-6 h-6 rounded-full bg-success cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-neutral-300"></span>
+              <span class="w-6 h-6 rounded-full bg-warning cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-neutral-300"></span>
+              <span class="w-6 h-6 rounded-full bg-danger cursor-pointer hover:ring-2 hover:ring-offset-2 hover:ring-neutral-300"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 关联资源面板 -->
+      <div class="p-4 border-b border-neutral-200">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-neutral-700">关联资源</h3>
+          <button class="text-primary text-sm hover:underline">
+            <i class="fa fa-plus-circle mr-1"></i> 添加
+          </button>
+        </div>
+        
+        <div class="space-y-3">
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                <i class="fa fa-file-text-o"></i>
+              </div>
+              <div class="ml-3 flex-1">
+                <h4 class="text-sm font-medium text-neutral-700">二叉树教案.pdf</h4>
+                <p class="text-xs text-neutral-500 mt-0.5">教案 • 2.4MB</p>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded bg-accent/10 flex items-center justify-center text-accent flex-shrink-0">
+                <i class="fa fa-play-circle-o"></i>
+              </div>
+              <div class="ml-3 flex-1">
+                <h4 class="text-sm font-medium text-neutral-700">二叉树视频讲解.mp4</h4>
+                <p class="text-xs text-neutral-500 mt-0.5">视频 • 15.6MB</p>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-start">
+              <div class="w-8 h-8 rounded bg-success/10 flex items-center justify-center text-success flex-shrink-0">
+                <i class="fa fa-question-circle-o"></i>
+              </div>
+              <div class="ml-3 flex-1">
+                <h4 class="text-sm font-medium text-neutral-700">二叉树练习题集.docx</h4>
+                <p class="text-xs text-neutral-500 mt-0.5">习题 • 845KB</p>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 关系管理面板 -->
+      <div class="p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-neutral-700">关系管理</h3>
+          <button class="text-primary text-sm hover:underline">
+            <i class="fa fa-link mr-1"></i> 新建关系
+          </button>
+        </div>
+        
+        <div class="space-y-3">
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="text-xs bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded-full">包含</div>
+                <div class="mx-2 text-neutral-400">
+                  <i class="fa fa-long-arrow-right"></i>
+                </div>
+                <span class="text-sm">满二叉树</span>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-trash-o"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="text-xs bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded-full">包含</div>
+                <div class="mx-2 text-neutral-400">
+                  <i class="fa fa-long-arrow-right"></i>
+                </div>
+                <span class="text-sm">完全二叉树</span>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-trash-o"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="text-xs bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded-full">应用于</div>
+                <div class="mx-2 text-neutral-400">
+                  <i class="fa fa-long-arrow-right"></i>
+                </div>
+                <span class="text-sm">二叉查找树</span>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-trash-o"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 node-hover">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="text-xs bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded-full">前置知识</div>
+                <div class="mx-2 text-neutral-400">
+                  <i class="fa fa-long-arrow-left"></i>
+                </div>
+                <span class="text-sm">树的基本概念</span>
+              </div>
+              <button class="text-neutral-400 hover:text-danger">
+                <i class="fa fa-trash-o"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 移动端底部导航 -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 flex items-center justify-around h-14 z-30">
+    <a href="#" class="flex flex-col items-center justify-center text-primary">
+      <i class="fa fa-sitemap text-lg"></i>
+      <span class="text-xs mt-1">图谱</span>
+    </a>
+    <a href="#" class="flex flex-col items-center justify-center text-neutral-400">
+      <i class="fa fa-book text-lg"></i>
+      <span class="text-xs mt-1">教案</span>
+    </a>
+    <a href="#" class="flex flex-col items-center justify-center text-neutral-400">
+      <i class="fa fa-graduation-cap text-lg"></i>
+      <span class="text-xs mt-1">课程</span>
+    </a>
+    <a href="#" class="flex flex-col items-center justify-center text-neutral-400">
+      <i class="fa fa-user-o text-lg"></i>
+      <span class="text-xs mt-1">我的</span>
+    </a>
+  </nav>
+
+  <!-- JavaScript 代码 -->
+  <script>
+    // 等待DOM加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取元素
+      const generateBtn = document.getElementById('generate-btn');
+      const graphPlaceholder = document.getElementById('graph-placeholder');
+      const graphLoading = document.getElementById('graph-loading');
+      const graphHint = document.getElementById('graph-hint');
+      const graphContainer = document.getElementById('graph-container');
+      
+      // 生成图谱按钮点击事件
+      generateBtn.addEventListener('click', function() {
+        // 显示加载状态
+        graphPlaceholder.classList.add('hidden');
+        graphLoading.classList.remove('hidden');
+        
+        // 模拟AI生成延迟
+        setTimeout(function() {
+          // 隐藏加载状态
+          graphLoading.classList.add('hidden');
+          // 显示图谱提示
+          graphHint.classList.remove('hidden');
+          
+          // 3秒后隐藏提示
+          setTimeout(function() {
+            graphHint.classList.add('hidden');
+          }, 3000);
+          
+          // 渲染知识图谱
+          renderKnowledgeGraph();
+        }, 2000);
+      });
+      
+      // 渲染知识图谱
+      function renderKnowledgeGraph() {
+        // 节点数据
+        const nodes = [
+          { id: 1, label: "数据结构", group: 1, size: 25, color: "#165DFF" },
+          { id: 2, label: "线性结构", group: 1, size: 20, color: "#165DFF" },
+          { id: 3, label: "树形结构", group: 1, size: 20, color: "#165DFF" },
+          { id: 4, label: "图形结构", group: 1, size: 20, color: "#165DFF" },
+          { id: 5, label: "数组", group: 2, size: 18, color: "#36CFC9" },
+          { id: 6, label: "链表", group: 2, size: 18, color: "#36CFC9" },
+          { id: 7, label: "栈", group: 2, size: 18, color: "#36CFC9" },
+          { id: 8, label: "队列", group: 2, size: 18, color: "#36CFC9" },
+          { id: 9, label: "二叉树", group: 3, size: 18, color: "#722ED1" },
+          { id: 10, label: "平衡树", group: 3, size: 16, color: "#722ED1" },
+          { id: 11, label: "红黑树", group: 3, size: 16, color: "#722ED1" },
+          { id: 12, label: "B树", group: 3, size: 16, color: "#722ED1" },
+          { id: 13, label: "图", group: 4, size: 18, color: "#FAAD14" },
+          { id: 14, label: "有向图", group: 4, size: 16, color: "#FAAD14" },
+          { id: 15, label: "无向图", group: 4, size: 16, color: "#FAAD14" },
+          { id: 16, label: "算法", group: 5, size: 25, color: "#52C41A" },
+          { id: 17, label: "排序", group: 5, size: 20, color: "#52C41A" },
+          { id: 18, label: "查找", group: 5, size: 20, color: "#52C41A" },
+          { id: 19, label: "递归", group: 5, size: 18, color: "#52C41A" },
+          { id: 20, label: "动态规划", group: 5, size: 18, color: "#52C41A" },
+          { id: 21, label: "贪心算法", group: 5, size: 18, color: "#52C41A" },
+          { id: 22, label: "深度优先", group: 5, size: 16, color: "#52C41A" },
+          { id: 23, label: "广度优先", group: 5, size: 16, color: "#52C41A" },
+          { id: 24, label: "复杂度分析", group: 5, size: 18, color: "#52C41A" }
+        ];
+        
+        // 关系数据
+        const edges = [
+          { from: 1, to: 2, label: "包含" },
+          { from: 1, to: 3, label: "包含" },
+          { from: 1, to: 4, label: "包含" },
+          { from: 2, to: 5, label: "包含" },
+          { from: 2, to: 6, label: "包含" },
+          { from: 2, to: 7, label: "包含" },
+          { from: 2, to: 8, label: "包含" },
+          { from: 3, to: 9, label: "包含" },
+          { from: 9, to: 10, label: "包含" },
+          { from: 10, to: 11, label: "包含" },
+          { from: 3, to: 12, label: "包含" },
+          { from: 4, to: 13, label: "包含" },
+          { from: 13, to: 14, label: "包含" },
+          { from: 13, to: 15, label: "包含" },
+          { from: 16, to: 17, label: "包含" },
+          { from: 16, to: 18, label: "包含" },
+          { from: 16, to: 19, label: "包含" },
+          { from: 16, to: 20, label: "包含" },
+          { from: 16, to: 21, label: "包含" },
+          { from: 18, to: 22, label: "使用" },
+          { from: 18, to: 23, label: "使用" },
+          { from: 16, to: 24, label: "包含" },
+          { from: 5, to: 17, label: "应用于" },
+          { from: 6, to: 7, label: "实现" },
+          { from: 6, to: 8, label: "实现" },
+          { from: 9, to: 18, label: "应用于" },
+          { from: 13, to: 22, label: "应用于" },
+          { from: 13, to: 23, label: "应用于" },
+          { from: 17, to: 24, label: "分析" },
+          { from: 18, to: 24, label: "分析" },
+          { from: 1, to: 16, label: "关联" },
+          { from: 7, to: 19, label: "应用于" },
+          { from: 9, to: 19, label: "应用于" },
+          { from: 20, to: 17, label: "优化" },
+          { from: 21, to: 17, label: "优化" },
+          { from: 12, to: 18, label: "优化" }
+        ];
+        
+        // 准备数据
+        const data = {
+          nodes: nodes,
+          edges: edges
+        };
+        
+        // 配置选项
+        const options = {
+          nodes: {
+            shape: "ellipse",
+            font: {
+              size: 12,
+              color: "#ffffff"
+            },
+            borderWidth: 2,
+            shadow: true
+          },
+          edges: {
+            font: {
+              size: 10,
+              color: "#333333"
+            },
+            color: {
+              color: "#999999",
+              highlight: "#165DFF"
+            },
+            smooth: {
+              type: "cubicBezier",
+              forceDirection: "horizontal",
+              roundness: 0.4
+            }
+          },
+          interaction: {
+            dragNodes: true,
+            dragView: true,
+            zoomView: true,
+            hover: true,
+            tooltipDelay: 300
+          },
+          layout: {
+            hierarchical: {
+              enabled: false,
+              levelSeparation: 150,
+              nodeSpacing: 100,
+              treeSpacing: 200,
+              blockShifting: true,
+              edgeMinimization: true,
+              parentCentralization: true,
+              direction: "UD", // UD, DU, LR, RL
+              sortMethod: "directed" // hubsize, directed
+            }
+          },
+          physics: {
+            forceAtlas2Based: {
+              gravitationalConstant: -26,
+              centralGravity: 0.005,
+              springLength: 230,
+              springConstant: 0.18
+            },
+            maxVelocity: 146,
+            solver: "forceAtlas2Based",
+            timestep: 0.35,
+            stabilization: {
+              enabled: true,
+              iterations: 1000,
+              updateInterval: 25
+            }
+          }
+        };
+        
+        // 创建网络实例
+        const network = new vis.Network(graphContainer, data, options);
+        
+        // 节点点击事件
+        network.on("click", function(params) {
+          if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            // 在实际应用中，这里会根据节点ID加载对应的详细信息
+            console.log("节点 " + nodeId + " 被点击");
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
