@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI教学系统 - 教师职称评定辅助工具</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #219653;
+        }
+        .result-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 4px 4px 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .score-card {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .score-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .alert {
+            padding: 10px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI教学系统 - 教师职称评定辅助工具</h1>
+            <p>智能评估教师教学成果，助力职称评定</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'auto-evaluation')">自动评估打分</div>
+            <div class="tab" onclick="openTab(event, 'generate-report')">生成成果报告</div>
+        </div>
+
+        <!-- 自动评估打分标签页 -->
+        <div id="auto-evaluation" class="tab-content active">
+            <div class="card">
+                <div class="card-header">教师信息与职称评定标准</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="teacher-name">教师姓名</label>
+                        <input type="text" id="teacher-name" placeholder="请输入教师姓名">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="current-title">当前职称</label>
+                        <select id="current-title">
+                            <option value="">请选择当前职称</option>
+                            <option value="assistant">助教</option>
+                            <option value="lecturer">讲师</option>
+                            <option value="associate">副教授</option>
+                            <option value="professor">教授</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="target-title">目标职称</label>
+                        <select id="target-title">
+                            <option value="">请选择目标职称</option>
+                            <option value="lecturer">讲师</option>
+                            <option value="associate">副教授</option>
+                            <option value="professor">教授</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">所属院系</label>
+                        <input type="text" id="department" placeholder="请输入所属院系">
+                    </div>
+
+                    <div class="alert">
+                        <strong>提示：</strong>系统将根据您选择的目标职称，自动加载相应的评定标准。
+                    </div>
+
+                    <h3>系统自动评估结果</h3>
+                    
+                    <div class="score-card">
+                        <div class="score-title">综合评分</div>
+                        <div class="score-value">87.5 / 100</div>
+                        <p>根据您在AI教学系统中的教案、课件、题库等教学成果自动评估</p>
+                    </div>
+
+                    <div class="result-section">
+                        <h3>各项指标得分</h3>
+                        <table width="100%" border="1" style="border-collapse: collapse; margin: 15px 0;">
+                            <tr style="background-color: #f8f9fa;">
+                                <th style="padding: 10px; text-align: left;">评估项目</th>
+                                <th style="padding: 10px; text-align: left;">分值</th>
+                                <th style="padding: 10px; text-align: left;">权重</th>
+                                <th style="padding: 10px; text-align: left;">得分</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">教案质量与数量</td>
+                                <td>30</td>
+                                <td>30%</td>
+                                <td>28.5</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">课件创新性与实用性</td>
+                                <td>25</td>
+                                <td>25%</td>
+                                <td>23.0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">题库建设与试卷质量</td>
+                                <td>20</td>
+                                <td>20%</td>
+                                <td>18.5</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">教学资源使用率</td>
+                                <td>15</td>
+                                <td>15%</td>
+                                <td>13.5</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px;">同行评价与反馈</td>
+                                <td>10</td>
+                                <td>10%</td>
+                                <td>9.0</td>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td>总计</td>
+                                <td>100</td>
+                                <td>100%</td>
+                                <td>87.5</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="result-section">
+                        <h3>职称评定建议</h3>
+                        <p><strong>评定结果：</strong>根据当前评分，您已达到<strong>副教授</strong>职称的评定标准（合格线：80分）。</p>
+                        <p><strong>优势分析：</strong>您的教案质量和课件创新性表现突出，教学资源使用率较高，体现了优秀的教学能力和资源建设意识。</p>
+                        <p><strong>改进建议：</strong>建议进一步提升题库的难度梯度设计和创新题型开发，同时加强与其他教师的资源共享与协作，以提升同行评价得分。</p>
+                    </div>
+
+                    <button onclick="regenerateScore()">重新生成评估结果</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 生成成果报告标签页 -->
+        <div id="generate-report" class="tab-content">
+            <div class="card">
+                <!-- 这里可以补充生成成果报告标签页的内容 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签页切换功能
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // 重新生成评估结果功能
+        function regenerateScore() {
+            // 这里可以添加重新生成评估结果的逻辑
+            alert("重新生成评估结果功能将在这里实现");
+        }
+    </script>
+</body>
+</html>
