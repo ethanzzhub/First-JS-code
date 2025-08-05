@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能教案生成系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#722ED1',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-graduation-cap text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">AI智能教案生成系统</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-primary transition-colors">
+                    <i class="fa fa-history mr-1"></i> 历史
+                </button>
+                <button class="text-gray-500 hover:text-primary transition-colors">
+                    <i class="fa fa-question-circle mr-1"></i> 帮助
+                </button>
+                <div class="flex items-center space-x-2">
+                    <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full">
+                    <span class="text-sm font-medium">张老师</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-6">
+        <div class="grid md:grid-cols-12 gap-6">
+            <!-- 左侧设置区 -->
+            <div class="md:col-span-5 bg-white rounded-lg shadow-sm p-5">
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 pb-2 border-b">教案设置</h2>
+                
+                <!-- 生成目的选择 -->
+                <div class="mb-5">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-cogs text-primary mr-2"></i>操作选择
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input type="radio" id="purposeGenerate" name="purpose" value="generate" checked
+                                class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300">
+                            <label for="purposeGenerate" class="ml-2 text-sm text-gray-700 cursor-pointer">
+                                生成新教案
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="radio" id="purposeOptimize" name="purpose" value="optimize"
+                                class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300">
+                            <label for="purposeOptimize" class="ml-2 text-sm text-gray-700 cursor-pointer">
+                                优化现有教案
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="mb-5">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-info-circle text-primary mr-2"></i>基本信息
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="lessonName" class="block text-sm font-medium text-gray-600 mb-1">教案名称 <span class="text-danger">*</span></label>
+                            <input type="text" id="lessonName" placeholder="例如：汽车发动机维修技术" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-600 mb-1">学科 <span class="text-danger">*</span></label>
+                                <select id="subject" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none appearance-none bg-white bg-[url('data:image/svg+xml;charset=US-ASCII,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5H7z\" fill=\"%234E5969\"/></svg>')] bg-no-repeat bg-right 0.75rem center">
+                                    <option value="">选择学科</option>
+                                    <option value="math">数学</option>
+                                    <option value="chinese">语文</option>
+                                    <option value="english">英语</option>
+                                    <option value="physics">物理</option>
+                                    <option value="chemistry">化学</option>
+                                    <option value="automobile">汽车维修</option>
+                                    <option value="electrician">电工电子</option>
+                                    <option value="computer">计算机</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="grade" class="block text-sm font-medium text-gray-600 mb-1">年级/学段</label>
+                                <select id="grade" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none appearance-none bg-white bg-[url('data:image/svg+xml;charset=US-ASCII,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5H7z\" fill=\"%234E5969\"/></svg>')] bg-no-repeat bg-right 0.75rem center">
+                                    <option value="">选择年级</option>
+                                    <option value="junior">初中</option>
+                                    <option value="senior">高中</option>
+                                    <option value="vocational1">职一</option>
+                                    <option value="vocational2">职二</option>
+                                    <option value="vocational3">职三</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="classHours" class="block text-sm font-medium text-gray-600 mb-1">课时安排</label>
+                            <input type="number" id="classHours" min="1" value="2" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 教学目标（简化） -->
+                <div class="mb-5">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-bullseye text-primary mr-2"></i>教学目标
+                    </h3>
+                    
+                    <div>
+                        <label for="briefGoal" class="block text-sm font-medium text-gray-600 mb-1">简要描述（选填）</label>
+                        <textarea id="briefGoal" rows="2" placeholder="例如：掌握基本概念和操作技巧" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">不填写将由AI自动生成适合的教学目标</p>
+                    </div>
+                </div>
+
+                <!-- 教案模板 -->
+                <div class="mb-5">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-file-text-o text-primary mr-2"></i>教案模板
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <select id="templateSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none appearance-none bg-white bg-[url('data:image/svg+xml;charset=US-ASCII,<svg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5H7z\" fill=\"%234E5969\"/></svg>')] bg-no-repeat bg-right 0.75rem center">
+                                <option value="system">系统默认模板</option>
+                                <option value="detailed">详细教学版</option>
+                                <option value="practical">实践实训版</option>
+                                <option value="exam">应试备考版</option>
+                                <option value="custom1">职校试讲模板</option>
+                                <option value="custom2">汽修实训模板</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">上传自定义模板</label>
+                            <label class="inline-block w-full py-2 text-center border border-dashed border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 cursor-pointer">
+                                <i class="fa fa-upload mr-1"></i> 选择文件上传
+                                <input type="file" accept=".docx,.pdf" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 思政元素设置 -->
+                <div class="mb-5">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-flag text-primary mr-2"></i>思政元素
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <input type="radio" id="ideologyAuto" name="ideologyMode" value="auto" checked
+                                class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300">
+                            <label for="ideologyAuto" class="ml-2 text-sm text-gray-700 cursor-pointer">
+                                自动匹配（推荐）
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="radio" id="ideologyManual" name="ideologyMode" value="manual"
+                                class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300">
+                            <label for="ideologyManual" class="ml-2 text-sm text-gray-700 cursor-pointer">
+                                手动选择
+                            </label>
+                        </div>
+                        
+                        <div id="ideologyOptions" class="pl-6 pt-1 border-l-2 border-gray-100">
+                            <p class="text-xs text-gray-500 mb-2">选择需要融入的思政点（可多选）：</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="ideologyPoints" value="craftsmanship" 
+                                        class="w-3.5 h-3.5 text-primary focus:ring-primary/30 border-gray-300 rounded">
+                                    <span class="ml-1.5 text-xs text-gray-700">工匠精神</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="ideologyPoints" value="patriotism" 
+                                        class="w-3.5 h-3.5 text-primary focus:ring-primary/30 border-gray-300 rounded">
+                                    <span class="ml-1.5 text-xs text-gray-700">爱国主义</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="ideologyPoints" value="innovation" 
+                                        class="w-3.5 h-3.5 text-primary focus:ring-primary/30 border-gray-300 rounded">
+                                    <span class="ml-1.5 text-xs text-gray-700">创新精神</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="ideologyPoints" value="teamwork" 
+                                        class="w-3.5 h-3.5 text-primary focus:ring-primary/30 border-gray-300 rounded">
+                                    <span class="ml-1.5 text-xs text-gray-700">团队协作</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 扩展选项 -->
+                <div class="mb-6">
+                    <h3 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fa fa-sliders text-primary mr-2"></i>扩展选项
+                    </h3>
+                    
+                    <div>
+                        <label for="extraReq" class="block text-sm font-medium text-gray-600 mb-1">特殊要求（选填）</label>
+                        <textarea id="extraReq" rows="2" placeholder="例如：增加互动环节/强化实践指导" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- 生成按钮 -->
+                <button id="generateBtn" class="w-full py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/90 transition-colors duration-200 flex items-center justify-center">
+                    <i class="fa fa-magic mr-2"></i> <span id="actionText">生成教案</span>
+                </button>
+            </div>
+
+            <!-- 右侧预览区 -->
+            <div class="md:col-span-7">
+                <!-- 预览区工具栏 -->
+                <div class="bg-white rounded-t-lg shadow-sm p-3 flex items-center justify-between border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">教案预览</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded transition-colors" title="下载">
+                            <i class="fa fa-download"></i>
+                        </button>
+                        <button class="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded transition-colors" title="打印">
+                            <i class="fa fa-print"></i>
+                        </button>
+                        <button class="p-1.5 text-gray-500 hover:text-primary hover:bg-gray-100 rounded transition-colors" title="更多操作">
+                            <i class="fa fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 预览内容区 -->
+                <div class="bg-white rounded-b-lg shadow-sm p-5 min-h-[calc(100vh-240px)]">
+                    <!-- 初始状态提示 -->
+                    <div id="initialState" class="h-full flex flex-col items-center justify-center text-center p-6">
+                        <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa fa-file-text-o text-primary text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">尚未生成教案</h3>
+                        <p class="text-gray-500 max-w-md mb-6">请在左侧填写教案基本信息，选择生成或优化选项，系统将自动生成符合要求的教案</p>
+                        <button class="px-4 py-2 bg-primary/10 text-primary rounded-md text-sm font-medium hover:bg-primary/20 transition-colors">
+                            <i class="fa fa-file-text-o mr-1"></i> 查看示例教案
+                        </button>
+                    </div>
+
+                    <!-- 优化模式上传区 - 默认隐藏 -->
+                    <div id="optimizeUploadState" class="h-full flex flex-col items-center justify-center hidden">
+                        <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fa fa-upload text-primary text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">上传您的教案进行优化</h3>
+                        <label class="inline-block w-full max-w-md py-6 text-center border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 cursor-pointer mb-4">
+                            <i class="fa fa-file-word-o text-2xl mb-2 block"></i>
+                            <p>点击或拖拽文件至此处上传</p>
+                            <p class="text-xs mt-1 text-gray-500">支持 .docx, .pdf 格式，最大10MB</p>
+                            <input type="file" accept=".docx,.pdf" class="hidden">
+                        </label>
+                        <p class="text-gray-500 text-sm mb-6">系统将优化您的教案结构，补充教学环节，并融入合适的思政元素</p>
+                    </div>
+
+                    <!-- 加载状态 - 默认隐藏 -->
+                    <div id="loadingState" class="h-full flex flex-col items-center justify-center hidden">
+                        <div class="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin mb-4"></div>
+                        <p class="text-gray-600">AI正在处理，请稍候...</p>
+                        <p class="text-gray-400 text-sm mt-2">通常需要5-20秒</p>
+                    </div>
+
+                    <!-- 教案内容 - 默认隐藏 -->
+                    <div id="lessonPlanContent" class="hidden">
+                        <!-- 教案标题区 -->
+                        <div class="text-center mb-6 pb-4 border-b">
+                            <h1 class="text-2xl font-bold text-gray-800 mb-3" id="planTitle">汽车发动机维修技术</h1>
+                            <div class="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-600">
+                                <div><span class="font-medium">学科：</span>汽车维修</div>
+                                <div><span class="font-medium">年级：</span>职二年级</div>
+                                <div><span class="font-medium">课时：</span>2课时</div>
+                                <div><span class="font-medium">生成日期：</span>2025年8月5日</div>
+                            </div>
+                        </div>
+
+                        <!-- 教学目标 -->
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-3">教学目标</h2>
+                            <div class="grid md:grid-cols-3 gap-3 text-sm">
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <h3 class="font-medium text-gray-700 mb-1">知识目标</h3>
+                                    <p class="text-gray-600">掌握汽车发动机的基本构造和工作原理，熟悉常见故障类型及诊断方法。</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <h3 class="font-medium text-gray-700 mb-1">技能目标</h3>
+                                    <p class="text-gray-600">能够正确使用发动机维修工具，独立完成常见故障的诊断与排除。</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded">
+                                    <h3 class="font-medium text-gray-700 mb-1">情感目标</h3>
+                                    <p class="text-gray-600">培养严谨细致的工作态度和安全生产意识，树立质量第一的职业理念。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 教学重点与难点 -->
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-3">教学重点与难点</h2>
+                            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <h3 class="font-medium text-gray-700 mb-2">教学重点</h3>
+                                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                                        <li>发动机各组成部分的名称和功能</li>
+                                        <li>发动机常见故障的诊断流程</li>
+                                        <li>标准维修操作流程和技术规范</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-700 mb-2">教学难点</h3>
+                                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                                        <li>复杂故障的综合分析与判断</li>
+                                        <li>维修工具的精准使用技巧</li>
+                                        <li>维修后的性能测试与调整</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 教学过程 -->
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-3">教学过程</h2>
+                            <div class="overflow-x-auto text-sm">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        <tr class="bg-gray-50">
+                                            <th class="px-3 py-2 text-left font-medium text-gray-600">环节</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-600">时间</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-600">教学内容与活动</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">导入</td>
+                                            <td class="px-3 py-2">10分钟</td>
+                                            <td class="px-3 py-2">
+                                                <p>展示发动机故障案例视频，提问引导学生思考故障原因</p>
+                                                <p class="mt-1">介绍本次课的学习目标和主要内容</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">理论讲解</td>
+                                            <td class="px-3 py-2">25分钟</td>
+                                            <td class="px-3 py-2">
+                                                <p>发动机基本构造和工作原理讲解</p>
+                                                <p class="mt-1">常见故障类型及诊断方法分析</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">实操演示</td>
+                                            <td class="px-3 py-2">30分钟</td>
+                                            <td class="px-3 py-2">
+                                                <p>教师示范发动机故障诊断流程</p>
+                                                <p class="mt-1">演示维修工具的正确使用方法</p>
+                                                <p class="mt-1 text-primary">【思政融入】结合我国汽车工业的发展成就，讲解工匠精神对技术进步的重要性，培养学生精益求精、追求卓越的职业态度。</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">学生实操</td>
+                                            <td class="px-3 py-2">40分钟</td>
+                                            <td class="px-3 py-2">
+                                                <p>学生分组进行故障诊断与维修实操</p>
+                                                <p class="mt-1">教师巡回指导，纠正不规范操作</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-medium">总结评价</td>
+                                            <td class="px-3 py-2">15分钟</td>
+                                            <td class="px-3 py-2">
+                                                <p>学生成果展示与互评</p>
+                                                <p class="mt-1">教师总结本次课重点内容，点评学生表现</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 思政元素说明 -->
+                        <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-6">
+                            <h3 class="font-medium text-primary mb-2 flex items-center">
+                                <i class="fa fa-flag mr-1.5"></i> 思政元素说明
+                            </h3>
+                            <p class="text-gray-600 text-sm">
+                                本教案根据课程内容自动匹配了"工匠精神"和"爱国主义"思政元素，通过结合我国汽车工业发展成就，
+                                培养学生的职业自豪感和精益求精的工作态度，将技能培养与价值观教育有机结合。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="bg-white border-t mt-6 py-3 text-center text-sm text-gray-500">
+        <p>© 2025 AI智能教案生成系统 - 让教学更高效</p>
+    </footer>
+
+    <script>
+        // 操作模式切换（生成/优化）
+        const purposeGenerate = document.getElementById('purposeGenerate');
+        const purposeOptimize = document.getElementById('purposeOptimize');
+        const actionText = document.getElementById('actionText');
+        const initialState = document.getElementById('initialState');
+        const optimizeUploadState = document.getElementById('optimizeUploadState');
+        
+        function updateOperationMode() {
+            if (purposeGenerate.checked) {
+                actionText.textContent = "生成教案";
+                initialState.classList.remove('hidden');
+                optimizeUploadState.classList.add('hidden');
+            } else {
+                actionText.textContent = "优化教案";
+                initialState.classList.add('hidden');
+                optimizeUploadState.classList.remove('hidden');
+            }
+        }
+        
+        purposeGenerate.addEventListener('change', updateOperationMode);
+        purposeOptimize.addEventListener('change', updateOperationMode);
+
+        // 思政模式切换
+        const ideologyAuto = document.getElementById('ideologyAuto');
+        const ideologyManual = document.getElementById('ideologyManual');
+        const ideologyOptions = document.getElementById('ideologyOptions');
+        
+        function updateIdeologyOptions() {
+            if (ideologyManual.checked) {
+                ideologyOptions.classList.remove('opacity-50', 'pointer-events-none');
+                ideologyOptions.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                ideologyOptions.classList.add('opacity-50', 'pointer-events-none');
+                ideologyOptions.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        }
+        
+        ideologyAuto.addEventListener('change', updateIdeologyOptions);
+        ideologyManual.addEventListener('change', updateIdeologyOptions);
+        
+        // 初始化状态
+        updateOperationMode();
+        updateIdeologyOptions();
+
+        // 生成/优化按钮点击事件
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            // 根据模式执行不同操作
+            if (purposeGenerate.checked) {
+                // 生成新教案 - 验证必要字段
+                const lessonName = document.getElementById('lessonName').value;
+                const subject = document.getElementById('subject').value;
+                
+                if (!lessonName || !subject) {
+                    alert('请填写教案名称和选择学科');
+                    return;
+                }
+                
+                // 更新标题
+                document.getElementById('planTitle').textContent = lessonName;
+            } else {
+                // 优化现有教案 - 这里可以添加文件上传验证
+                // 模拟已上传文件
+            }
+            
+            // 显示加载状态
+            initialState.classList.add('hidden');
+            optimizeUploadState.classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('lessonPlanContent').classList.add('hidden');
+            
+            // 模拟AI处理过程
+            setTimeout(() => {
+                // 隐藏加载状态，显示教案内容
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('lessonPlanContent').classList.remove('hidden');
+                
+                // 平滑滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 1800);
+        });
+    </script>
+</body>
+</html>
