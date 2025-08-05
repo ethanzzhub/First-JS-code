@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师文案舆情监测系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                        success: '#00B42A',
+                        neutral: {
+                            100: '#F2F3F5',
+                            200: '#E5E6EB',
+                            300: '#C9CDD4',
+                            400: '#86909C',
+                            500: '#4E5969',
+                            600: '#272E3B',
+                            700: '#1D2129',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
+                        'card-hover': '0 8px 30px 0 rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-height {
+                transition: max-height 0.3s ease-in-out;
+            }
+            .bg-gradient-primary {
+                background: linear-gradient(135deg, #165DFF 0%, #0A4BDB 100%);
+            }
+            .highlight-warning {
+                background-color: rgba(255, 125, 0, 0.2);
+                border-bottom: 2px solid #FF7D00;
+                padding: 0 2px;
+            }
+            .highlight-danger {
+                background-color: rgba(245, 63, 63, 0.2);
+                border-bottom: 2px solid #F53F3F;
+                padding: 0 2px;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-shield text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-neutral-700">
+                    <span class="text-primary">教师文案</span>舆情监测系统
+                </h1>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-primary font-medium hover:text-primary/80 transition-colors">首页</a>
+                <a href="#" class="text-neutral-500 hover:text-primary transition-colors">使用指南</a>
+                <a href="#" class="text-neutral-500 hover:text-primary transition-colors">历史记录</a>
+                <a href="#" class="text-neutral-500 hover:text-primary transition-colors">帮助中心</a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="md:hidden text-neutral-600 hover:text-primary transition-colors">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+                <div class="hidden md:flex items-center space-x-2">
+                    <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover">
+                    <span class="text-neutral-600">张老师</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6 md:py-10">
+        <!-- 页面标题和说明 -->
+        <div class="mb-8 text-center">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral-700 mb-3 text-shadow">文案舆情检测</h2>
+            <p class="text-neutral-500 max-w-2xl mx-auto">输入或上传教学相关文案，系统将自动检测潜在的舆情风险内容，并提供专业的修改建议</p>
+        </div>
+        
+        <!-- 功能区卡片 -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-10">
+            <!-- 输入区域 -->
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden">
+                <div class="p-5 border-b border-neutral-200 bg-neutral-50">
+                    <h3 class="font-bold text-lg text-neutral-700 flex items-center">
+                        <i class="fa fa-file-text-o text-primary mr-2"></i>输入检测内容
+                    </h3>
+                </div>
+                
+                <div class="p-5">
+                    <!-- 输入选项卡 -->
+                    <div class="flex border-b border-neutral-200 mb-4">
+                        <button id="text-tab" class="py-2 px-4 font-medium text-primary border-b-2 border-primary">
+                            文本输入
+                        </button>
+                        <button id="file-tab" class="py-2 px-4 font-medium text-neutral-500 hover:text-neutral-700">
+                            文件上传
+                        </button>
+                    </div>
+                    
+                    <!-- 文本输入区域 -->
+                    <div id="text-input-section">
+                        <textarea 
+                            id="content-input" 
+                            class="w-full h-64 p-4 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none transition-all"
+                            placeholder="请输入需要检测的文案内容..."
+                        ></textarea>
+                    </div>
+                    
+                    <!-- 文件上传区域 (默认隐藏) -->
+                    <div id="file-input-section" class="hidden">
+                        <div class="border-2 border-dashed border-neutral-300 rounded-lg p-10 text-center hover:border-primary transition-colors cursor-pointer" id="file-dropzone">
+                            <i class="fa fa-cloud-upload text-4xl text-neutral-400 mb-3"></i>
+                            <p class="text-neutral-500 mb-2">拖拽文件到此处，或点击上传</p>
+                            <p class="text-sm text-neutral-400">支持格式：.txt, .doc, .docx, .pdf (最大10MB)</p>
+                            <input type="file" id="file-upload" class="hidden" accept=".txt,.doc,.docx,.pdf">
+                        </div>
+                        
+                        <!-- 已上传文件列表 (默认隐藏) -->
+                        <div id="file-list" class="mt-4 hidden">
+                            <div class="flex items-center p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                                <i class="fa fa-file-word-o text-primary mr-3"></i>
+                                <div class="flex-grow">
+                                    <p class="font-medium text-neutral-700 truncate">教学计划方案.docx</p>
+                                    <p class="text-xs text-neutral-500">2.4 MB</p>
+                                </div>
+                                <button class="text-neutral-400 hover:text-danger transition-colors">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button id="detect-btn" class="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm hover:shadow transition-all flex items-center">
+                            <i class="fa fa-search mr-2"></i>开始检测
+                        </button>
+                        <button id="clear-btn" class="bg-white hover:bg-neutral-50 text-neutral-600 border border-neutral-300 font-medium py-2.5 px-6 rounded-lg transition-all flex items-center">
+                            <i class="fa fa-eraser mr-2"></i>清空内容
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 结果展示区域 -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden">
+                <div class="p-5 border-b border-neutral-200 bg-neutral-50">
+                    <h3 class="font-bold text-lg text-neutral-700 flex items-center">
+                        <i class="fa fa-bar-chart text-primary mr-2"></i>检测结果
+                    </h3>
+                </div>
+                
+                <div class="p-5">
+                    <!-- 结果统计 -->
+                    <div id="result-stats" class="hidden mb-5">
+                        <div class="grid grid-cols-3 gap-3 text-center mb-5">
+                            <div class="bg-neutral-50 p-3 rounded-lg">
+                                <p class="text-sm text-neutral-500">总字数</p>
+                                <p class="text-xl font-bold text-neutral-700" id="total-words">356</p>
+                            </div>
+                            <div class="bg-warning/10 p-3 rounded-lg">
+                                <p class="text-sm text-neutral-500">风险内容</p>
+                                <p class="text-xl font-bold text-warning" id="risk-count">2</p>
+                            </div>
+                            <div class="bg-danger/10 p-3 rounded-lg">
+                                <p class="text-sm text-neutral-500">敏感内容</p>
+                                <p class="text-xl font-bold text-danger" id="sensitive-count">1</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 结果文本 -->
+                        <div class="mb-5">
+                            <h4 class="font-medium text-neutral-700 mb-2">检测内容预览：</h4>
+                            <div id="result-content" class="p-4 bg-neutral-50 rounded-lg border border-neutral-200 h-40 overflow-y-auto text-sm">
+                                <p>为了提高学生成绩，我们将采取<mark class="highlight-warning">强制补课</mark>的方式，对于<mark class="highlight-danger">学习能力差的学生</mark>将进行单独辅导，确保班级整体水平提升。对于不配合的学生，我们会<mark class="highlight-warning">通知家长并要求配合</mark>。</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 修改建议 -->
+                        <div>
+                            <h4 class="font-medium text-neutral-700 mb-2">修改建议：</h4>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-white border border-warning/30 rounded-lg">
+                                    <p class="text-sm font-medium text-warning mb-1">风险内容修改："强制补课"</p>
+                                    <p class="text-sm text-neutral-700">建议修改为："自愿参加的课后辅导"</p>
+                                </div>
+                                <div class="p-3 bg-white border border-danger/30 rounded-lg">
+                                    <p class="text-sm font-medium text-danger mb-1">敏感内容修改："学习能力差的学生"</p>
+                                    <p class="text-sm text-neutral-700">建议修改为："需要更多帮助的学生"</p>
+                                </div>
+                                <div class="p-3 bg-white border border-warning/30 rounded-lg">
+                                    <p class="text-sm font-medium text-warning mb-1">风险内容修改："通知家长并要求配合"</p>
+                                    <p class="text-sm text-neutral-700">建议修改为："与家长沟通并共同探讨解决方案"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 未检测状态 -->
+                    <div id="no-result" class="text-center py-10">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 mb-4">
+                            <i class="fa fa-search text-2xl text-neutral-400"></i>
+                        </div>
+                        <p class="text-neutral-500">请输入内容并点击"开始检测"</p>
+                        <p class="text-xs text-neutral-400 mt-2">系统将分析内容并提供专业建议</p>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div id="result-actions" class="mt-6 hidden">
+                        <div class="flex flex-wrap gap-3">
+                            <button class="bg-success hover:bg-success/90 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow transition-all flex items-center text-sm">
+                                <i class="fa fa-check mr-2"></i>应用修改
+                            </button>
+                            <button class="bg-white hover:bg-neutral-50 text-neutral-600 border border-neutral-300 font-medium py-2 px-5 rounded-lg transition-all flex items-center text-sm">
+                                <i class="fa fa-download mr-2"></i>导出结果
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 检测历史 -->
+        <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden mb-10">
+            <div class="p-5 border-b border-neutral-200 bg-neutral-50 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-neutral-700 flex items-center">
+                    <i class="fa fa-history text-primary mr-2"></i>检测历史
+                </h3>
+                <a href="#" class="text-primary text-sm hover:underline">查看全部</a>
+            </div>
+            
+            <div class="p-5">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[640px]">
+                        <thead>
+                            <tr class="border-b border-neutral-200">
+                                <th class="text-left py-3 px-4 text-sm font-medium text-neutral-500">检测内容</th>
+                                <th class="text-left py-3 px-4 text-sm font-medium text-neutral-500">检测时间</th>
+                                <th class="text-left py-3 px-4 text-sm font-medium text-neutral-500">风险等级</th>
+                                <th class="text-left py-3 px-4 text-sm font-medium text-neutral-500">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                                <td class="py-3 px-4 text-sm text-neutral-700 max-w-xs truncate">期中家长会发言稿</td>
+                                <td class="py-3 px-4 text-sm text-neutral-500">2023-05-15 09:32</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 bg-success/10 text-success text-xs rounded-full">低风险</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary text-sm hover:text-primary/80 mr-3">查看</button>
+                                    <button class="text-neutral-500 text-sm hover:text-neutral-700">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                                <td class="py-3 px-4 text-sm text-neutral-700 max-w-xs truncate">班级管理规定</td>
+                                <td class="py-3 px-4 text-sm text-neutral-500">2023-05-12 14:15</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 bg-warning/10 text-warning text-xs rounded-full">中风险</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary text-sm hover:text-primary/80 mr-3">查看</button>
+                                    <button class="text-neutral-500 text-sm hover:text-neutral-700">删除</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-neutral-50 transition-colors">
+                                <td class="py-3 px-4 text-sm text-neutral-700 max-w-xs truncate">学生成绩分析报告</td>
+                                <td class="py-3 px-4 text-sm text-neutral-500">2023-05-10 16:48</td>
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-1 bg-danger/10 text-danger text-xs rounded-full">高风险</span>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary text-sm hover:text-primary/80 mr-3">查看</button>
+                                    <button class="text-neutral-500 text-sm hover:text-neutral-700">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 使用指南 -->
+        <div class="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden">
+            <div class="p-5 border-b border-neutral-200 bg-neutral-50">
+                <h3 class="font-bold text-lg text-neutral-700 flex items-center">
+                    <i class="fa fa-book text-primary mr-2"></i>使用指南
+                </h3>
+            </div>
+            
+            <div class="p-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 border border-neutral-100 rounded-lg hover:border-primary/30 transition-colors">
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa fa-pencil text-primary"></i>
+                        </div>
+                        <h4 class="font-medium text-neutral-700 mb-2">输入内容</h4>
+                        <p class="text-sm text-neutral-500">在文本框中输入需要检测的教学文案，或上传相关文件</p>
+                    </div>
+                    
+                    <div class="p-4 border border-neutral-100 rounded-lg hover:border-primary/30 transition-colors">
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa fa-search text-primary"></i>
+                        </div>
+                        <h4 class="font-medium text-neutral-700 mb-2">开始检测</h4>
+                        <p class="text-sm text-neutral-500">点击"开始检测"按钮，系统将自动分析内容中的潜在问题</p>
+                    </div>
+                    
+                    <div class="p-4 border border-neutral-100 rounded-lg hover:border-primary/30 transition-colors">
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                            <i class="fa fa-refresh text-primary"></i>
+                        </div>
+                        <h4 class="font-medium text-neutral-700 mb-2">修改优化</h4>
+                        <p class="text-sm text-neutral-500">根据系统提供的建议修改内容，提升文案的专业性和适宜性</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-700 text-neutral-300 py-8 mt-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-shield text-white text-xl"></i>
+                        <h3 class="text-white font-bold">教师文案舆情监测系统</h3>
+                    </div>
+                    <p class="text-sm text-neutral-400">帮助教师检测教学文案中的潜在舆情风险，提升沟通质量与教育效果</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-medium mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-colors">使用指南</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-colors">常见问题</a></li>
+                        <li><a href="#" class="text-neutral-400 hover:text-white transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-medium mb-4">联系我们</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center"><i class="fa fa-envelope-o mr-2"></i> support@example.com</li>
+                        <li class="flex items-center"><i class="fa fa-phone mr-2"></i> 400-123-4567</li>
+                        <li class="flex items-center"><i class="fa fa-map-marker mr-2"></i> 北京市海淀区教育大厦</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-neutral-600 mt-6 pt-6 text-center text-sm text-neutral-500">
+                <p>© 2023 教师文案舆情监测系统 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 选项卡切换
+            const textTab = document.getElementById('text-tab');
+            const fileTab = document.getElementById('file-tab');
+            const textInputSection = document.getElementById('text-input-section');
+            const fileInputSection = document.getElementById('file-input-section');
+            
+            textTab.addEventListener('click', function() {
+                textTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                textTab.classList.remove('text-neutral-500');
+                fileTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                fileTab.classList.add('text-neutral-500');
+                textInputSection.classList.remove('hidden');
+                fileInputSection.classList.add('hidden');
+            });
+            
+            fileTab.addEventListener('click', function() {
+                fileTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+                fileTab.classList.remove('text-neutral-500');
+                textTab.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                textTab.classList.add('text-neutral-500');
+                fileInputSection.classList.remove('hidden');
+                textInputSection.classList.add('hidden');
+            });
+            
+            // 文件上传区域点击事件
+            const fileDropzone = document.getElementById('file-dropzone');
+            const fileUpload = document.getElementById('file-upload');
+            const fileList = document.getElementById('file-list');
+            
+            fileDropzone.addEventListener('click', function() {
+                fileUpload.click();
+            });
+            
+            // 模拟文件上传
+            fileUpload.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileList.classList.remove('hidden');
+                }
+            });
+            
+            // 拖拽效果（简化版）
+            fileDropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-primary');
+            });
+            
+            fileDropzone.addEventListener('dragleave', function() {
+                this.classList.remove('border-primary');
+            });
+            
+            fileDropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-primary');
+                // 实际项目中这里会处理文件
+                fileList.classList.remove('hidden');
+            });
+            
+            // 检测按钮点击事件
+            const detectBtn = document.getElementById('detect-btn');
+            const contentInput = document.getElementById('content-input');
+            const noResult = document.getElementById('no-result');
+            const resultStats = document.getElementById('result-stats');
+            const resultActions = document.getElementById('result-actions');
+            
+            detectBtn.addEventListener('click', function() {
+                // 检查是否有输入内容
+                if (contentInput.value.trim() !== '' || !fileList.classList.contains('hidden')) {
+                    // 显示加载状态
+                    detectBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>检测中...';
+                    detectBtn.disabled = true;
+                    
+                    // 模拟检测过程
+                    setTimeout(function() {
+                        noResult.classList.add('hidden');
+                        resultStats.classList.remove('hidden');
+                        resultActions.classList.remove('hidden');
+                        
+                        // 恢复按钮状态
+                        detectBtn.innerHTML = '<i class="fa fa-search mr-2"></i>开始检测';
+                        detectBtn.disabled = false;
+                        
+                        // 添加结果区域动画
+                        resultStats.classList.add('animate-fadeIn');
+                    }, 1500);
+                } else {
+                    // 显示提示信息（实际项目中可以使用toast组件）
+                    alert('请输入或上传需要检测的内容');
+                }
+            });
+            
+            // 清空按钮点击事件
+            const clearBtn = document.getElementById('clear-btn');
+            
+            clearBtn.addEventListener('click', function() {
+                contentInput.value = '';
+                fileList.classList.add('hidden');
+                fileUpload.value = '';
+                noResult.classList.remove('hidden');
+                resultStats.classList.add('hidden');
+                resultActions.classList.add('hidden');
+            });
+            
+            // 滚动时导航栏效果
+            const header = document.querySelector('header');
+            let lastScrollTop = 0;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (scrollTop > 50) {
+                    header.classList.add('py-2', 'shadow');
+                    header.classList.remove('py-3');
+                } else {
+                    header.classList.add('py-3');
+                    header.classList.remove('py-2', 'shadow');
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+        });
+    </script>
+</body>
+</html>
