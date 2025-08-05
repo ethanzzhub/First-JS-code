@@ -25,6 +25,12 @@
             border-radius: 8px 8px 0 0;
             margin-bottom: 20px;
         }
+        .user-info {
+            text-align: right;
+            margin-bottom: 10px;
+            color: #3498db;
+            font-weight: 600;
+        }
         h1 {
             margin: 0;
             font-size: 28px;
@@ -48,6 +54,12 @@
         }
         .form-group {
             margin-bottom: 15px;
+        }
+        .form-info {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
         label {
             display: block;
@@ -73,9 +85,16 @@
             font-size: 16px;
             font-weight: 600;
             transition: background-color 0.3s;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #219653;
+        }
+        button.secondary {
+            background-color: #3498db;
+        }
+        button.secondary:hover {
+            background-color: #2980b9;
         }
         .result-section {
             margin-top: 20px;
@@ -144,10 +163,81 @@
             border-radius: 4px;
             margin-bottom: 15px;
         }
+        .report-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .report-option {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .report-option:hover {
+            border-color: #3498db;
+            background-color: #f0f7ff;
+        }
+        .report-option.selected {
+            border-color: #27ae60;
+            background-color: #f1f9f7;
+        }
+        .report-preview {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 300px;
+            background-color: white;
+            position: relative;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        .report-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .report-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .loading-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 显示当前登录用户信息 -->
+        <div class="user-info">
+            当前登录：<span id="current-teacher-name">张明</span> 老师
+        </div>
+        
         <header>
             <h1>AI教学系统 - 教师职称评定辅助工具</h1>
             <p>智能评估教师教学成果，助力职称评定</p>
@@ -164,8 +254,8 @@
                 <div class="card-header">教师信息与职称评定标准</div>
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="teacher-name">教师姓名</label>
-                        <input type="text" id="teacher-name" placeholder="请输入教师姓名">
+                        <label>教师姓名</label>
+                        <div class="form-info" id="eval-teacher-name">张明</div>
                     </div>
                     
                     <div class="form-group">
@@ -269,12 +359,118 @@
         <!-- 生成成果报告标签页 -->
         <div id="generate-report" class="tab-content">
             <div class="card">
-                <!-- 这里可以补充生成成果报告标签页的内容 -->
+                <div class="card-header">教学成果报告生成</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>教师姓名</label>
+                        <div class="form-info" id="report-teacher-name">张明</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-department">所属院系</label>
+                        <input type="text" id="report-department" placeholder="请输入所属院系">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-period">报告周期</label>
+                        <select id="report-period">
+                            <option value="annual">年度报告</option>
+                            <option value="3years">近三年报告</option>
+                            <option value="5years">近五年报告</option>
+                            <option value="custom">自定义周期</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-period" style="display: none;">
+                        <label>自定义周期</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" placeholder="开始日期 (YYYY-MM-DD)" style="flex: 1;">
+                            <input type="text" placeholder="结束日期 (YYYY-MM-DD)" style="flex: 1;">
+                        </div>
+                    </div>
+
+                    <h3>报告内容选项</h3>
+                    <p>请选择需要包含在报告中的内容：</p>
+                    
+                    <div class="report-options">
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>教学评估综合得分</strong>
+                            <p>包含各项指标得分及综合评价</p>
+                        </div>
+                        
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>教学成果统计</strong>
+                            <p>教案、课件、题库等资源建设情况</p>
+                        </div>
+                        
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>学生评价分析</strong>
+                            <p>学生对教学的评价及分析</p>
+                        </div>
+                        
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>同行评价汇总</strong>
+                            <p>其他教师的评价及建议</p>
+                        </div>
+                        
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>教学改进建议</strong>
+                            <p>基于评估结果的专业发展建议</p>
+                        </div>
+                        
+                        <div class="report-option" onclick="toggleReportOption(this)">
+                            <input type="checkbox" checked style="margin-right: 5px;">
+                            <strong>图表数据可视化</strong>
+                            <p>包含各类评估数据的图表展示</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="report-remarks">备注信息（可选）</label>
+                        <textarea id="report-remarks" rows="3" placeholder="请输入需要补充的备注信息..."></textarea>
+                    </div>
+
+                    <button onclick="generateReport()">生成成果报告</button>
+                    <button class="secondary" onclick="clearReportForm()">清空表单</button>
+
+                    <div class="loading" id="report-loading">
+                        <div class="loading-spinner"></div>
+                        <p>正在生成报告，请稍候...</p>
+                    </div>
+
+                    <div class="report-preview" id="report-preview">
+                        <p style="text-align: center; color: #777; padding: 40px 0;">
+                            报告预览将显示在这里，点击"生成成果报告"按钮开始生成
+                        </p>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: center; display: none;" id="report-actions">
+                        <button onclick="downloadReport('pdf')">下载 PDF 格式</button>
+                        <button class="secondary" onclick="downloadReport('docx')">下载 Word 格式</button>
+                        <button class="secondary" onclick="printReport()">打印报告</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // 实际应用中，这里会从登录系统获取教师姓名
+        // 示例：const teacherName = getLoggedInUserName(); // 伪代码
+        const teacherName = "张明"; // 示例姓名，实际应从登录信息获取
+        
+        // 在页面加载时设置教师姓名
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('current-teacher-name').textContent = teacherName;
+            document.getElementById('eval-teacher-name').textContent = teacherName;
+            document.getElementById('report-teacher-name').textContent = teacherName;
+        });
+
         // 标签页切换功能
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
@@ -288,13 +484,188 @@
             }
             document.getElementById(tabName).classList.add("active");
             evt.currentTarget.classList.add("active");
+            
+            // 同步两个标签页的院系信息
+            if (tabName === 'generate-report' && document.getElementById('department').value) {
+                document.getElementById('report-department').value = document.getElementById('department').value;
+            }
         }
 
         // 重新生成评估结果功能
         function regenerateScore() {
-            // 这里可以添加重新生成评估结果的逻辑
-            alert("重新生成评估结果功能将在这里实现");
+            // 获取当前教师信息
+            const department = document.getElementById('department').value || '未知院系';
+            
+            // 生成随机分数（在一定范围内）
+            const teachingPlanScore = (25 + Math.random() * 5).toFixed(1);
+            const coursewareScore = (20 + Math.random() * 5).toFixed(1);
+            const questionBankScore = (16 + Math.random() * 4).toFixed(1);
+            const resourceUsageScore = (12 + Math.random() * 3).toFixed(1);
+            const peerReviewScore = (7 + Math.random() * 3).toFixed(1);
+            
+            const totalScore = (parseFloat(teachingPlanScore) + parseFloat(coursewareScore) + 
+                               parseFloat(questionBankScore) + parseFloat(resourceUsageScore) + 
+                               parseFloat(peerReviewScore)).toFixed(1);
+            
+            // 更新分数显示
+            document.querySelector('.score-value').textContent = totalScore + ' / 100';
+            
+            // 更新表格中的分数
+            const scoreCells = document.querySelectorAll('.result-section table tr td:last-child');
+            scoreCells[0].textContent = teachingPlanScore;
+            scoreCells[1].textContent = coursewareScore;
+            scoreCells[2].textContent = questionBankScore;
+            scoreCells[3].textContent = resourceUsageScore;
+            scoreCells[4].textContent = peerReviewScore;
+            scoreCells[5].textContent = totalScore;
+            
+            // 更新评定建议
+            let targetTitle = document.getElementById('target-title').options[document.getElementById('target-title').selectedIndex].text || '副教授';
+            let passLine = 80;
+            if (targetTitle === '教授') passLine = 85;
+            if (targetTitle === '讲师') passLine = 75;
+            
+            const resultText = totalScore >= passLine ? 
+                `根据当前评分，您已达到<strong>${targetTitle}</strong>职称的评定标准（合格线：${passLine}分）。` : 
+                `根据当前评分，您尚未达到<strong>${targetTitle}</strong>职称的评定标准（合格线：${passLine}分）。`;
+            
+            document.querySelector('.result-section h3 + p').innerHTML = `<strong>评定结果：</strong>${resultText}`;
+            
+            alert(`已为${teacherName}重新生成评估结果，综合评分为${totalScore}分`);
         }
+
+        // 报告周期选择变化
+        document.getElementById('report-period').addEventListener('change', function() {
+            const customPeriodDiv = document.getElementById('custom-period');
+            if (this.value === 'custom') {
+                customPeriodDiv.style.display = 'block';
+            } else {
+                customPeriodDiv.style.display = 'none';
+            }
+        });
+
+        // 切换报告选项
+        function toggleReportOption(element) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            element.classList.toggle('selected', checkbox.checked);
+        }
+
+        // 生成报告
+        function generateReport() {
+            // 获取表单数据
+            const department = document.getElementById('report-department').value || '未知院系';
+            const periodSelect = document.getElementById('report-period');
+            const period = periodSelect.options[periodSelect.selectedIndex].text;
+            
+            // 显示加载状态
+            document.getElementById('report-loading').style.display = 'block';
+            document.getElementById('report-preview').style.display = 'none';
+            document.getElementById('report-actions').style.display = 'none';
+            
+            // 模拟生成报告的延迟
+            setTimeout(() => {
+                // 隐藏加载状态
+                document.getElementById('report-loading').style.display = 'none';
+                document.getElementById('report-preview').style.display = 'block';
+                
+                // 生成报告内容
+                const reportDate = new Date().toLocaleDateString();
+                const reportContent = `
+                    <div class="report-header">
+                        <div class="report-title">教师教学成果评估报告</div>
+                        <div class="report-meta">报告生成日期：${reportDate}</div>
+                        <div class="report-meta">评估周期：${period}</div>
+                    </div>
+                    
+                    <h3>一、基本信息</h3>
+                    <p><strong>教师姓名：</strong>${teacherName}</p>
+                    <p><strong>所属院系：</strong>${department}</p>
+                    <p><strong>当前职称：</strong>${getCurrentTitleText()}</p>
+                    <p><strong>目标职称：</strong>${getTargetTitleText()}</p>
+                    
+                    <h3>二、综合评估结果</h3>
+                    <p><strong>综合评分：</strong>${document.querySelector('.score-value').textContent}</p>
+                    <p><strong>评定结果：</strong>${document.querySelector('.result-section h3 + p').innerHTML.replace('<strong>评定结果：</strong>', '')}</p>
+                    
+                    <h3>三、教学成果统计</h3>
+                    <p>1. 教案总数：12份，其中优秀教案5份，良好教案7份</p>
+                    <p>2. 课件总数：15套，采用多媒体互动形式的占比73%</p>
+                    <p>3. 题库规模：包含各类试题2300余道，覆盖所有授课章节</p>
+                    <p>4. 学生平均满意度：92.5%</p>
+                    
+                    <h3>四、优势与不足分析</h3>
+                    <p><strong>主要优势：</strong>教案设计系统性强，符合学生认知规律；课件制作精良，充分利用现代教育技术；课堂互动效果好，学生参与度高。</p>
+                    <p><strong>改进方向：</strong>建议增加实践教学环节设计；加强科研成果向教学内容的转化；适当增加形成性评价的比重。</p>
+                    
+                    <h3>五、专业发展建议</h3>
+                    <p>1. 建议参与省级以上教学改革项目，提升教学研究能力</p>
+                    <p>2. 可考虑编写特色教材或教学参考书，固化教学成果</p>
+                    <p>3. 推荐参加青年教师教学能力提升研修班，进一步提升教学水平</p>
+                `;
+                
+                // 更新预览区域
+                document.getElementById('report-preview').innerHTML = reportContent;
+                
+                // 显示报告操作按钮
+                document.getElementById('report-actions').style.display = 'block';
+                
+            }, 2000); // 2秒延迟，模拟生成过程
+        }
+
+        // 清空报告表单
+        function clearReportForm() {
+            document.getElementById('report-department').value = '';
+            document.getElementById('report-period').value = 'annual';
+            document.getElementById('custom-period').style.display = 'none';
+            document.getElementById('report-remarks').value = '';
+            
+            // 取消所有选项的选中状态
+            const checkboxes = document.querySelectorAll('.report-option input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('selected');
+            });
+            
+            // 重置预览区域
+            document.getElementById('report-preview').innerHTML = `
+                <p style="text-align: center; color: #777; padding: 40px 0;">
+                    报告预览将显示在这里，点击"生成成果报告"按钮开始生成
+                </p>
+            `;
+            document.getElementById('report-actions').style.display = 'none';
+        }
+
+        // 下载报告
+        function downloadReport(format) {
+            const fileName = `${teacherName}的教学成果报告.${format}`;
+            alert(`报告将以${format.toUpperCase()}格式下载，文件名为：${fileName}`);
+            // 实际项目中这里会实现真实的下载功能
+        }
+
+        // 打印报告
+        function printReport() {
+            alert('即将打印报告');
+            // 实际项目中这里会调用window.print()或其他打印方案
+        }
+
+        // 辅助函数：获取当前职称文本
+        function getCurrentTitleText() {
+            const select = document.getElementById('current-title');
+            return select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : '未填写';
+        }
+
+        // 辅助函数：获取目标职称文本
+        function getTargetTitleText() {
+            const select = document.getElementById('target-title');
+            return select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : '未填写';
+        }
+
+        // 初始化报告选项的选中状态
+        document.querySelectorAll('.report-option').forEach(option => {
+            option.classList.add('selected');
+        });
     </script>
 </body>
 </html>
+    
