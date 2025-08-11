@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动画作品分析系统</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6', // 蓝色作为主色调，代表专业和信任
+            secondary: '#EC4899', // 粉色作为辅助色，适合创意领域
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .animation-delay-300 {
+        animation-delay: 300ms;
+      }
+      .animation-delay-600 {
+        animation-delay: 600ms;
+      }
+    }
+  </style>
+  
+  <style>
+    /* 基础动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    /* 进度条动画 */
+    @keyframes progress {
+      from { width: 0; }
+      to { width: var(--progress-width, 100%); }
+    }
+    
+    .progress-animation {
+      animation: progress 1.5s ease-out forwards;
+    }
+    
+    /* 卡片悬停效果 */
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <div class="flex flex-col h-screen overflow-hidden">
+    <!-- 顶部区域 -->
+    <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-primary flex items-center">
+          <i class="fa fa-film mr-2"></i>
+          <span>动画分析系统</span>
+        </h1>
+      </div>
+      
+      <div class="flex items-center space-x-6">
+        <div class="hidden md:block">
+          <h2 class="text-base font-medium">欢迎回来，张明</h2>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <button class="relative text-gray-500 hover:text-gray-700">
+            <i class="fa fa-bell text-xl"></i>
+            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+          
+          <div class="flex items-center">
+            <img src="https://picsum.photos/id/64/40/40" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- 页面内容 -->
+    <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+      <!-- 统计卡片 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">已上传作品</p>
+              <h3 class="text-3xl font-bold mt-1">12</h3>
+              <p class="text-green-500 text-sm mt-2 flex items-center">
+                <i class="fa fa-arrow-up mr-1"></i>
+                <span>较上月增长 3</span>
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-primary">
+              <i class="fa fa-video-camera text-xl"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in animation-delay-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">平均评分</p>
+              <h3 class="text-3xl font-bold mt-1">8.7</h3>
+              <p class="text-green-500 text-sm mt-2 flex items-center">
+                <i class="fa fa-arrow-up mr-1"></i>
+                <span>较上次提高 0.3</span>
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-purple-500">
+              <i class="fa fa-star text-xl"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-6 card-hover animate-fade-in animation-delay-600">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">待改进项</p>
+              <h3 class="text-3xl font-bold mt-1">3</h3>
+              <p class="text-red-500 text-sm mt-2 flex items-center">
+                <i class="fa fa-arrow-down mr-1"></i>
+                <span>较上次减少 2</span>
+              </p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center text-orange-500">
+              <i class="fa fa-exclamation-circle text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 上传区域 -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">上传动画作品</h2>
+        <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary transition duration-300 cursor-pointer bg-white">
+          <div class="max-w-md mx-auto">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-primary mx-auto mb-4">
+              <i class="fa fa-cloud-upload text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-medium mb-2">拖放视频文件到此处上传</h3>
+            <p class="text-gray-500 mb-6">支持 MP4、MOV、AVI 格式，最大 200MB</p>
+            <button class="bg-primary hover:bg-blue-600 text-white py-2 px-6 rounded-lg transition duration-200">
+              选择文件
+            </button>
+            <input type="file" class="hidden" accept="video/*">
+          </div>
+        </div>
+      </div>
+      
+      <!-- 最近分析结果 -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">最近分析结果</h2>
+          <a href="#" class="text-primary hover:text-blue-600 text-sm font-medium">查看全部</a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- 分析结果卡片 1 -->
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+            <div class="relative">
+              <img src="https://picsum.photos/id/96/800/400" alt="动画缩略图" class="w-full h-48 object-cover">
+              <div class="absolute top-3 right-3 bg-primary text-white text-sm py-1 px-3 rounded-full">
+                评分: 9.2
+              </div>
+              <button class="absolute top-3 left-3 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition">
+                <i class="fa fa-play"></i>
+              </button>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-lg mb-2">角色动画练习 - 行走循环</h3>
+              <p class="text-gray-500 text-sm mb-4">上传于 2023-06-15 · 时长: 00:45</p>
+              
+              <div class="mb-4">
+                <h4 class="font-medium text-sm mb-2">评分详情</h4>
+                <div class="space-y-2">
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>动作流畅度</span>
+                      <span>9.5</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full progress-animation" style="--progress-width: 95%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>时间掌握</span>
+                      <span>8.8</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full progress-animation" style="--progress-width: 88%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>角色表现力</span>
+                      <span>9.0</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full progress-animation" style="--progress-width: 90%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="font-medium text-sm mb-2">教师评语</h4>
+                <p class="text-gray-600 text-sm">
+                  这是一个非常出色的行走循环动画！动作流畅自然，展现了对重量和平衡的良好理解。建议可以在细节上再做一些调整，让角色更具个性。
+                </p>
+                <button class="text-primary text-sm mt-2 hover:underline">查看完整评价</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 分析结果卡片 2 -->
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover">
+            <div class="relative">
+              <img src="https://picsum.photos/id/237/800/400" alt="动画缩略图" class="w-full h-48 object-cover">
+              <div class="absolute top-3 right-3 bg-primary text-white text-sm py-1 px-3 rounded-full">
+                评分: 7.5
+              </div>
+              <button class="absolute top-3 left-3 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition">
+                <i class="fa fa-play"></i>
+              </button>
+            </div>
+            <div class="p-5">
+              <h3 class="font-semibold text-lg mb-2">弹跳小球动画练习</h3>
+              <p class="text-gray-500 text-sm mb-4">上传于 2023-06-10 · 时长: 00:30</p>
+              
+              <div class="mb-4">
+                <h4 class="font-medium text-sm mb-2">评分详情</h4>
+                <div class="space-y-2">
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>物理规律</span>
+                      <span>6.8</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-yellow-500 h-1.5 rounded-full progress-animation" style="--progress-width: 68%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>节奏控制</span>
+                      <span>8.2</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-green-500 h-1.5 rounded-full progress-animation" style="--progress-width: 82%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span>细节处理</span>
+                      <span>7.5</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                      <div class="bg-yellow-500 h-1.5 rounded-full progress-animation" style="--progress-width: 75%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 class="font-medium text-sm mb-2">教师评语</h4>
+                <p class="text-gray-600 text-sm">
+                  整体节奏控制不错，但小球的弹跳物理效果需要改进。注意重力加速度和弹性的表现，建议多观察真实物体的运动轨迹，加强对物理规律的理解。
+                </p>
+                <button class="text-primary text-sm mt-2 hover:underline">查看完整评价</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- 上传进度模态框 (默认隐藏) -->
+  <div id="upload-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-semibold mb-4">正在上传...</h3>
+      <div class="mb-4">
+        <div class="flex justify-between text-sm mb-1">
+          <span>角色动画练习.mp4</span>
+          <span id="upload-percentage">35%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="upload-progress" class="bg-primary h-2 rounded-full" style="width: 35%"></div>
+        </div>
+      </div>
+      <p class="text-gray-500 text-sm mb-4">上传完成后将自动开始分析...</p>
+      <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-lg transition">
+        取消上传
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    // 上传区域交互
+    const uploadArea = document.getElementById('upload-area');
+    const uploadModal = document.getElementById('upload-modal');
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadPercentage = document.getElementById('upload-percentage');
+    
+    uploadArea.addEventListener('click', () => {
+      // 模拟点击隐藏的文件输入
+      document.querySelector('input[type="file"]').click();
+    });
+    
+    // 模拟文件选择后的上传过程
+    document.querySelector('input[type="file"]').addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        // 显示上传模态框
+        uploadModal.classList.remove('hidden');
+        
+        // 模拟进度更新
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 10;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            
+            // 上传完成后2秒隐藏模态框
+            setTimeout(() => {
+              uploadModal.classList.add('hidden');
+              // 重置进度
+              uploadProgress.style.width = '0';
+              uploadPercentage.textContent = '0%';
+              
+              // 这里可以添加上传完成后的逻辑，如刷新页面或添加新的分析结果
+              alert('文件上传完成，正在分析...');
+            }, 2000);
+          }
+          
+          uploadProgress.style.width = `${progress}%`;
+          uploadPercentage.textContent = `${Math.round(progress)}%`;
+        }, 500);
+      }
+    });
+    
+    // 拖放功能
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('border-primary', 'bg-blue-50');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('border-primary', 'bg-blue-50');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('border-primary', 'bg-blue-50');
+      
+      if (e.dataTransfer.files.length > 0) {
+        // 处理拖放的文件，这里同样模拟上传过程
+        uploadModal.classList.remove('hidden');
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 10;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            
+            setTimeout(() => {
+              uploadModal.classList.add('hidden');
+              uploadProgress.style.width = '0';
+              uploadPercentage.textContent = '0%';
+              alert('文件上传完成，正在分析...');
+            }, 2000);
+          }
+          
+          uploadProgress.style.width = `${progress}%`;
+          uploadPercentage.textContent = `${Math.round(progress)}%`;
+        }, 500);
+      }
+    });
+  </script>
+</body>
+</html>
