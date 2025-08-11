@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舆情监测系统</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#36D399',
+                        warning: '#FBBD23',
+                        danger: '#F87272',
+                        neutral: '#3D4451',
+                        "base-100": '#FFFFFF',
+                        "base-200": '#F2F3F5',
+                        "base-300": '#E5E6EB',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .shadow-custom {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #165DFF 0%, #0A42D1 100%);
+            }
+        }
+    </style>
+    
+    <style>
+        /* 基础动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* 进度条动画 */
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        .animate-progress {
+            animation: progress 2s ease-out forwards;
+        }
+        
+        /* 加载动画 */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .animate-spin-custom {
+            animation: spin 1.5s linear infinite;
+        }
+        
+        /* 确保页面平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="font-inter bg-base-200 text-neutral min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 页面标题 -->
+        <header class="mb-10 animate-fade-in">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral mb-2">舆情监测系统</h1>
+            <p class="text-gray-500 text-lg">上传文件进行内容合规检测，查看历史记录与详细分析</p>
+        </header>
+        
+        <!-- 主要内容区域 -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左侧：文件上传区域 -->
+            <section class="lg:col-span-1 animate-fade-in" style="animation-delay: 0.1s">
+                <div class="bg-white rounded-xl shadow-custom p-6 h-full">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-upload text-primary mr-2"></i>文件上传
+                    </h2>
+                    
+                    <!-- 上传区域 -->
+                    <div id="upload-area" class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center transition-custom hover:border-primary cursor-pointer mb-6">
+                        <input type="file" id="file-input" class="hidden" accept=".txt,.pdf,.docx,.jpg,.jpeg,.png,.mp4,.mov,.avi">
+                        <div class="upload-icon mb-4 text-5xl text-primary/70">
+                            <i class="fa fa-cloud-upload"></i>
+                        </div>
+                        <h3 class="text-lg font-medium mb-2">拖放文件到此处</h3>
+                        <p class="text-gray-500 mb-4">或点击选择文件上传</p>
+                        <button id="browse-btn" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-custom">
+                            选择文件
+                        </button>
+                        <p class="text-xs text-gray-400 mt-4">支持格式：TXT、PDF、DOCX、JPG、PNG、MP4等</p>
+                    </div>
+                    
+                    <!-- 选中的文件预览 -->
+                    <div id="file-preview" class="hidden mb-6 p-4 bg-base-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i id="file-icon" class="fa fa-file-text-o text-primary mr-3 text-xl"></i>
+                                <div>
+                                    <p id="file-name" class="font-medium truncate max-w-[200px]"></p>
+                                    <p id="file-size" class="text-sm text-gray-500"></p>
+                                </div>
+                            </div>
+                            <button id="remove-file" class="text-gray-400 hover:text-danger transition-custom">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 上传按钮 -->
+                    <button id="upload-btn" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary/90 transition-custom flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa fa-check mr-2"></i>开始检测
+                    </button>
+                    
+                    <!-- 上传进度 -->
+                    <div id="upload-progress" class="hidden mt-6">
+                        <p class="text-sm text-gray-500 mb-2 flex justify-between">
+                            <span>正在检测中...</span>
+                            <span id="progress-percentage">0%</span>
+                        </p>
+                        <div class="h-2 bg-base-300 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-primary rounded-full animate-progress"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 检测中动画 -->
+                    <div id="processing-animation" class="hidden mt-6 flex flex-col items-center justify-center py-4">
+                        <div class="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin-custom mb-4"></div>
+                        <p class="text-gray-600">正在分析文件内容...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 右侧：结果与历史记录 -->
+            <section class="lg:col-span-2 space-y-8">
+                <!-- 检测结果 -->
+                <div class="bg-white rounded-xl shadow-custom p-6 animate-fade-in" style="animation-delay: 0.2s">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-check-circle text-primary mr-2"></i>检测结果
+                    </h2>
+                    
+                    <!-- 无结果状态 -->
+                    <div id="no-result" class="py-12 text-center">
+                        <div class="text-5xl text-base-300 mb-4">
+                            <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <p class="text-gray-500">上传文件并进行检测后，结果将显示在这里</p>
+                    </div>
+                    
+                    <!-- 有结果状态 - 合规 -->
+                    <div id="result-compliant" class="hidden">
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-medium mb-1" id="result-filename"></h3>
+                                <p class="text-sm text-gray-500" id="result-date"></p>
+                            </div>
+                            <span class="bg-success/10 text-success px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fa fa-check mr-1"></i>合规
+                            </span>
+                        </div>
+                        
+                        <div class="p-4 bg-success/5 border border-success/20 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="fa fa-check-circle text-success text-xl mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium text-success mb-1">内容合规</h4>
+                                    <p class="text-gray-600">文件内容未检测到违规信息，符合平台规范要求。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="font-medium mb-3">检测详情</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">检测类型</p>
+                                    <p class="font-medium" id="result-type"></p>
+                                </div>
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">检测时间</p>
+                                    <p class="font-medium" id="result-time"></p>
+                                </div>
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">敏感词数量</p>
+                                    <p class="font-medium text-success">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 有结果状态 - 不合规 -->
+                    <div id="result-noncompliant" class="hidden">
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-medium mb-1" id="noncomp-filename"></h3>
+                                <p class="text-sm text-gray-500" id="noncomp-date"></p>
+                            </div>
+                            <span class="bg-danger/10 text-danger px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fa fa-exclamation-circle mr-1"></i>不合规
+                            </span>
+                        </div>
+                        
+                        <div class="p-4 bg-danger/5 border border-danger/20 rounded-lg mb-6">
+                            <div class="flex items-start">
+                                <i class="fa fa-exclamation-circle text-danger text-xl mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="font-medium text-danger mb-1">内容不合规</h4>
+                                    <p class="text-gray-600">文件内容检测到违规信息，不符合平台规范要求。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-3">违规内容详情</h4>
+                            <div id="violations-list" class="space-y-3">
+                                <!-- 违规项示例 -->
+                                <div class="p-3 bg-base-200 rounded-lg border-l-4 border-danger">
+                                    <p class="font-medium">违规内容：<span class="text-danger" id="violation-text-1">敏感词汇1</span></p>
+                                    <p class="text-sm text-gray-500 mt-1">位置：第3段第2行</p>
+                                    <p class="text-sm text-gray-600 mt-1">违规类型：<span class="bg-danger/10 text-danger px-2 py-0.5 rounded text-xs">政治敏感</span></p>
+                                </div>
+                                <div class="p-3 bg-base-200 rounded-lg border-l-4 border-danger">
+                                    <p class="font-medium">违规内容：<span class="text-danger" id="violation-text-2">敏感词汇2</span></p>
+                                    <p class="text-sm text-gray-500 mt-1">位置：第5段第1行</p>
+                                    <p class="text-sm text-gray-600 mt-1">违规类型：<span class="bg-danger/10 text-danger px-2 py-0.5 rounded text-xs">暴力内容</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium mb-3">检测详情</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">检测类型</p>
+                                    <p class="font-medium" id="noncomp-type"></p>
+                                </div>
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">检测时间</p>
+                                    <p class="font-medium" id="noncomp-time"></p>
+                                </div>
+                                <div class="p-3 bg-base-200 rounded-lg">
+                                    <p class="text-sm text-gray-500">敏感词数量</p>
+                                    <p class="font-medium text-danger" id="noncomp-count">2</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 历史记录 -->
+                <div class="bg-white rounded-xl shadow-custom p-6 animate-fade-in" style="animation-delay: 0.3s">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold flex items-center">
+                            <i class="fa fa-history text-primary mr-2"></i>历史检测记录
+                        </h2>
+                        <div class="relative">
+                            <input type="text" placeholder="搜索记录..." class="pl-9 pr-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom text-sm">
+                            <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 历史记录列表 -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-base-300">
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">文件名</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">类型</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">检测时间</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">结果</th>
+                                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 历史记录项 -->
+                                <tr class="border-b border-base-300 hover:bg-base-200/50 transition-custom">
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center">
+                                            <i class="fa fa-file-pdf-o text-danger mr-2"></i>
+                                            <span>市场调研报告.pdf</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">文档</td>
+                                    <td class="py-3 px-4 text-sm text-gray-500">2023-06-15 14:30</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-success/10 text-success px-2 py-0.5 rounded-full text-xs">合规</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-primary hover:text-primary/80 transition-custom mr-3">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-custom">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-base-300 hover:bg-base-200/50 transition-custom">
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center">
+                                            <i class="fa fa-file-image-o text-warning mr-2"></i>
+                                            <span>活动宣传图.jpg</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">图片</td>
+                                    <td class="py-3 px-4 text-sm text-gray-500">2023-06-14 09:15</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-danger/10 text-danger px-2 py-0.5 rounded-full text-xs">不合规</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-primary hover:text-primary/80 transition-custom mr-3">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-custom">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b border-base-300 hover:bg-base-200/50 transition-custom">
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center">
+                                            <i class="fa fa-file-video-o text-primary mr-2"></i>
+                                            <span>产品介绍.mp4</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">视频</td>
+                                    <td class="py-3 px-4 text-sm text-gray-500">2023-06-12 16:45</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-success/10 text-success px-2 py-0.5 rounded-full text-xs">合规</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-primary hover:text-primary/80 transition-custom mr-3">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-custom">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-base-200/50 transition-custom">
+                                    <td class="py-3 px-4">
+                                        <div class="flex items-center">
+                                            <i class="fa fa-file-text-o text-gray-500 mr-2"></i>
+                                            <span>用户评论汇总.txt</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3 px-4">文本</td>
+                                    <td class="py-3 px-4 text-sm text-gray-500">2023-06-10 11:20</td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-danger/10 text-danger px-2 py-0.5 rounded-full text-xs">不合规</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button class="text-primary hover:text-primary/80 transition-custom mr-3">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-custom">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="flex justify-between items-center mt-6">
+                        <p class="text-sm text-gray-500">显示 1-4 条，共 24 条记录</p>
+                        <div class="flex space-x-1">
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-base-300 text-gray-400 hover:border-primary hover:text-primary transition-custom disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fa fa-chevron-left text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white">1</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-base-300 hover:border-primary hover:text-primary transition-custom">2</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-base-300 hover:border-primary hover:text-primary transition-custom">3</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-base-300 hover:border-primary hover:text-primary transition-custom">
+                                <i class="fa fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // 获取DOM元素
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileIcon = document.getElementById('file-icon');
+        const removeFile = document.getElementById('remove-file');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadProgress = document.getElementById('upload-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const processingAnimation = document.getElementById('processing-animation');
+        const noResult = document.getElementById('no-result');
+        const resultCompliant = document.getElementById('result-compliant');
+        const resultNoncompliant = document.getElementById('result-noncompliant');
+        
+        // 文件类型图标映射
+        const fileTypeIcons = {
+            'text': 'fa-file-text-o',
+            'pdf': 'fa-file-pdf-o',
+            'doc': 'fa-file-word-o',
+            'docx': 'fa-file-word-o',
+            'jpg': 'fa-file-image-o',
+            'jpeg': 'fa-file-image-o',
+            'png': 'fa-file-image-o',
+            'mp4': 'fa-file-video-o',
+            'mov': 'fa-file-video-o',
+            'avi': 'fa-file-video-o'
+        };
+        
+        // 文件类型颜色映射
+        const fileTypeColors = {
+            'text': 'text-gray-500',
+            'pdf': 'text-danger',
+            'doc': 'text-primary',
+            'docx': 'text-primary',
+            'jpg': 'text-warning',
+            'jpeg': 'text-warning',
+            'png': 'text-warning',
+            'mp4': 'text-primary',
+            'mov': 'text-primary',
+            'avi': 'text-primary'
+        };
+        
+        // 文件类型名称映射
+        const fileTypeName = {
+            'text': '文本',
+            'pdf': '文档',
+            'doc': '文档',
+            'docx': '文档',
+            'jpg': '图片',
+            'jpeg': '图片',
+            'png': '图片',
+            'mp4': '视频',
+            'mov': '视频',
+            'avi': '视频'
+        };
+        
+        // 处理文件选择
+        let selectedFile = null;
+        
+        function handleFileSelection(file) {
+            if (!file) return;
+            
+            selectedFile = file;
+            
+            // 更新预览
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            
+            // 确定文件类型和图标
+            const fileExt = getFileExtension(file.name).toLowerCase();
+            let iconClass = 'fa-file-o';
+            let iconColor = 'text-gray-500';
+            
+            for (const type in fileTypeIcons) {
+                if (fileExt.includes(type) || type.includes(fileExt)) {
+                    iconClass = fileTypeIcons[type];
+                    iconColor = fileTypeColors[type];
+                    break;
+                }
+            }
+            
+            fileIcon.className = `fa ${iconClass} ${iconColor} mr-3 text-xl`;
+            
+            // 显示预览，启用上传按钮
+            filePreview.classList.remove('hidden');
+            uploadBtn.removeAttribute('disabled');
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 获取文件扩展名
+        function getFileExtension(filename) {
+            return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+        }
+        
+        // 事件监听 - 浏览按钮
+        browseBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 事件监听 - 文件选择
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+        
+        // 事件监听 - 移除文件
+        removeFile.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+            uploadBtn.setAttribute('disabled', 'true');
+        });
+        
+        // 事件监听 - 拖放功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary');
+            uploadArea.classList.add('bg-primary/5');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-primary');
+            uploadArea.classList.remove('bg-primary/5');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary');
+            uploadArea.classList.remove('bg-primary/5');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+        
+        uploadArea.addEventListener('click', () => {
+            if (!selectedFile) {
+                fileInput.click();
+            }
+        });
+        
+        // 事件监听 - 上传按钮
+        uploadBtn.addEventListener('click', () => {
+            if (!selectedFile) return;
+            
+            // 显示进度条
+            uploadBtn.classList.add('hidden');
+            uploadProgress.classList.remove('hidden');
+            
+            // 模拟进度
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = `${progress}%`;
+                progressPercentage.textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // 隐藏进度条，显示处理动画
+                    setTimeout(() => {
+                        uploadProgress.classList.add('hidden');
+                        processingAnimation.classList.remove('hidden');
+                        
+                        // 模拟处理时间（2秒）
+                        setTimeout(() => {
+                            processingAnimation.classList.add('hidden');
+                            uploadBtn.classList.remove('hidden');
+                            
+                            // 随机显示合规或不合规结果（实际应用中根据真实检测结果决定）
+                            const isCompliant = Math.random() > 0.5;
+                            
+                            // 获取文件信息
+                            const fileExt = getFileExtension(selectedFile.name).toLowerCase();
+                            let fileType = '其他';
+                            for (const type in fileTypeName) {
+                                if (fileExt.includes(type) || type.includes(fileExt)) {
+                                    fileType = fileTypeName[type];
+                                    break;
+                                }
+                            }
+                            
+                            // 显示当前时间
+                            const now = new Date();
+                            const dateString = now.toLocaleDateString();
+                            const timeString = now.toLocaleTimeString();
+                            
+                            // 显示结果
+                            noResult.classList.add('hidden');
+                            
+                            if (isCompliant) {
+                                resultCompliant.classList.remove('hidden');
+                                resultNoncompliant.classList.add('hidden');
+                                
+                                // 填充合规结果数据
+                                document.getElementById('result-filename').textContent = selectedFile.name;
+                                document.getElementById('result-date').textContent = `检测日期：${dateString}`;
+                                document.getElementById('result-type').textContent = fileType;
+                                document.getElementById('result-time').textContent = timeString;
+                            } else {
+                                resultNoncompliant.classList.remove('hidden');
+                                resultCompliant.classList.add('hidden');
+                                
+                                // 填充不合规结果数据
+                                document.getElementById('noncomp-filename').textContent = selectedFile.name;
+                                document.getElementById('noncomp-date').textContent = `检测日期：${dateString}`;
+                                document.getElementById('noncomp-type').textContent = fileType;
+                                document.getElementById('noncomp-time').textContent = timeString;
+                                
+                                // 随机生成1-3个违规项
+                                const violationCount = Math.floor(Math.random() * 3) + 1;
+                                document.getElementById('noncomp-count').textContent = violationCount;
+                                
+                                // 清空现有违规项（保留第一个作为模板）
+                                const violationsList = document.getElementById('violations-list');
+                                while (violationsList.children.length > violationCount) {
+                                    violationsList.removeChild(violationsList.lastChild);
+                                }
+                                
+                                // 填充违规内容
+                                const violationTypes = ['政治敏感', '暴力内容', '色情内容', '虚假信息', '歧视性语言'];
+                                const violationTexts = ['敏感词汇A', '违规表述B', '不当内容C', '禁止信息D', '敏感话题E'];
+                                
+                                for (let i = 0; i < violationCount; i++) {
+                                    if (i > 0) {
+                                        // 克隆第一个违规项作为新项
+                                        const newViolation = violationsList.children[0].cloneNode(true);
+                                        violationsList.appendChild(newViolation);
+                                    }
+                                    
+                                    // 更新违规项内容
+                                    const violationItem = violationsList.children[i];
+                                    const textElem = violationItem.querySelector('span.text-danger');
+                                    const typeElem = violationItem.querySelector('span.bg-danger\\/10');
+                                    
+                                    const randomText = violationTexts[Math.floor(Math.random() * violationTexts.length)];
+                                    const randomType = violationTypes[Math.floor(Math.random() * violationTypes.length)];
+                                    const randomParagraph = Math.floor(Math.random() * 10) + 1;
+                                    const randomLine = Math.floor(Math.random() * 5) + 1;
+                                    
+                                    textElem.textContent = randomText;
+                                    typeElem.textContent = randomType;
+                                    violationItem.querySelector('.text-gray-500').textContent = `位置：第${randomParagraph}段第${randomLine}行`;
+                                }
+                            }
+                            
+                            // 滚动到结果区域
+                            document.getElementById('no-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            
+                        }, 2000);
+                    }, 500);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
