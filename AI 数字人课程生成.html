@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI课程生成平台 - 教师后台</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 引入Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36D399',
+            warning: '#FF9F1C',
+            danger: '#F87272',
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .shadow-soft {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #165DFF 0%, #0A3CA0 100%);
+      }
+      .transition-all-300 {
+        transition: all 300ms ease-in-out;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark antialiased">
+  <div class="flex h-screen overflow-hidden">
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- 页面内容 -->
+      <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <!-- 页面标题和用户信息 -->
+        <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <div>
+            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">AI课程生成</h1>
+            <p class="text-gray-500 mt-1">上传您的视频和课程资料，创建专属AI课程</p>
+          </div>
+          <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+            <img src="https://picsum.photos/id/64/200/200" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+            <div>
+              <p class="text-sm font-medium">张老师</p>
+              <p class="text-xs text-gray-500">高中数学</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 数据概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-lg transition-all-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">已创建课程</p>
+                <h3 class="text-2xl font-bold mt-1">12</h3>
+              </div>
+              <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-graduation-cap text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+              <span class="text-secondary flex items-center">
+                <i class="fa fa-arrow-up mr-1"></i> 16%
+              </span>
+              <span class="text-gray-500 ml-2">相比上月</span>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-lg transition-all-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">AI形象</p>
+                <h3 class="text-2xl font-bold mt-1">2</h3>
+              </div>
+              <div class="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center text-warning">
+                <i class="fa fa-user-circle text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+              <span class="text-secondary flex items-center">
+                <i class="fa fa-check mr-1"></i> 已完成
+              </span>
+              <span class="text-gray-500 ml-2">可用于课程</span>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-lg transition-all-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">课程资料</p>
+                <h3 class="text-2xl font-bold mt-1">36</h3>
+              </div>
+              <div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+                <i class="fa fa-file-text text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+              <span class="text-gray-500">包含PPT、教案等</span>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-6 shadow-soft hover:shadow-lg transition-all-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-500 text-sm">处理中</p>
+                <h3 class="text-2xl font-bold mt-1">1</h3>
+              </div>
+              <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-cog fa-spin text-xl"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+              <span class="text-warning flex items-center">
+                <i class="fa fa-clock-o mr-1"></i> 进行中
+              </span>
+              <span class="text-gray-500 ml-2">AI课程生成</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 主要功能区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 左侧：上传个人视频生成AI形象 -->
+          <div class="lg:col-span-1 space-y-6">
+            <!-- 上传个人视频 -->
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold">创建您的AI形象</h2>
+                <p class="text-gray-500 text-sm mt-1">上传您的视频，系统将生成您的数字分身</p>
+              </div>
+              
+              <div class="p-6">
+                <!-- 上传区域 -->
+                <div id="video-upload-area" class="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center hover:border-primary/50 hover:bg-primary/5 transition-all-300 cursor-pointer">
+                  <div class="max-w-xs mx-auto">
+                    <div class="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4">
+                      <i class="fa fa-video-camera text-2xl"></i>
+                    </div>
+                    <h3 class="text-sm font-medium mb-1">上传您的视频</h3>
+                    <p class="text-gray-500 text-xs mb-4">支持MP4、MOV格式，建议时长3-5分钟</p>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-all-300">
+                      选择视频文件
+                    </button>
+                    <input type="file" class="hidden" accept="video/*">
+                  </div>
+                </div>
+                
+                <!-- 已上传的视频 -->
+                <div id="uploaded-video" class="mt-6 hidden">
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-10 h-10 bg-primary/10 rounded flex items-center justify-center text-primary">
+                        <i class="fa fa-file-video-o"></i>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium truncate max-w-[150px]">my_intro_video.mp4</p>
+                        <p class="text-xs text-gray-500">2.4 MB</p>
+                      </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-danger transition-all-300">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                  
+                  <!-- 处理进度 -->
+                  <div class="mt-4">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-gray-500">AI形象生成中</span>
+                      <span class="font-medium">65%</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div class="h-full bg-primary rounded-full" style="width: 65%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">预计还需 2 分钟</p>
+                  </div>
+                </div>
+                
+                <!-- 已生成的AI形象 -->
+                <div id="generated-ai" class="mt-6 hidden">
+                  <div class="border rounded-lg overflow-hidden">
+                    <img src="https://picsum.photos/id/1005/400/225" alt="生成的AI形象预览" class="w-full h-auto">
+                    <div class="p-3 bg-gray-50 text-center">
+                      <p class="text-sm font-medium">AI形象已生成</p>
+                      <p class="text-xs text-gray-500">可用于课程视频创建</p>
+                    </div>
+                  </div>
+                  <button class="mt-4 w-full px-4 py-2 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-all-300">
+                    创建新的AI形象
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- AI形象选择 -->
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold">选择AI形象</h2>
+                <p class="text-gray-500 text-sm mt-1">选择用于生成课程的AI形象</p>
+              </div>
+              
+              <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="border-2 border-primary rounded-lg overflow-hidden cursor-pointer relative">
+                    <img src="https://picsum.photos/id/1005/200/200" alt="AI形象1" class="w-full h-24 object-cover">
+                    <div class="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                      <i class="fa fa-check text-white text-xs"></i>
+                    </div>
+                    <div class="p-2 text-center">
+                      <p class="text-xs font-medium">默认形象</p>
+                    </div>
+                  </div>
+                  
+                  <div class="border-2 border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-primary/50 transition-all-300">
+                    <img src="https://picsum.photos/id/1012/200/200" alt="AI形象2" class="w-full h-24 object-cover">
+                    <div class="p-2 text-center">
+                      <p class="text-xs font-medium">正式形象</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 右侧：上传课程资料并生成课程视频 -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- 上传课程资料 -->
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold">上传课程资料</h2>
+                <p class="text-gray-500 text-sm mt-1">上传PPT、教案等资料，用于AI课程生成</p>
+              </div>
+              
+              <div class="p-6">
+                <!-- 上传区域 -->
+                <div id="materials-upload-area" class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-primary/50 hover:bg-primary/5 transition-all-300 cursor-pointer">
+                  <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                    <div class="text-center md:text-left">
+                      <div class="w-12 h-12 mx-auto md:mx-0 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
+                        <i class="fa fa-cloud-upload text-xl"></i>
+                      </div>
+                      <h3 class="text-sm font-medium mb-1">上传课程资料</h3>
+                      <p class="text-gray-500 text-xs">支持PPT、PDF、Word等格式</p>
+                    </div>
+                    <div class="border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6">
+                      <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-all-300 mr-2">
+                        选择文件
+                      </button>
+                      <button class="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all-300">
+                        拖放文件到此处
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 已上传的文件列表 -->
+                <div class="mt-6">
+                  <h3 class="text-sm font-medium mb-3">已上传资料</h3>
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded flex items-center justify-center text-orange-500">
+                          <i class="fa fa-file-powerpoint-o"></i>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium truncate max-w-[200px] md:max-w-[300px]">高一数学-函数的基本性质.pptx</p>
+                          <p class="text-xs text-gray-500">4.8 MB · 今天 09:32</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-primary transition-all-300">
+                          <i class="fa fa-download"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-danger transition-all-300">
+                          <i class="fa fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 rounded flex items-center justify-center text-red-500">
+                          <i class="fa fa-file-pdf-o"></i>
+                        </div>
+                        <div>
+                          <p class="text-sm font-medium truncate max-w-[200px] md:max-w-[300px]">函数教案设计.pdf</p>
+                          <p class="text-xs text-gray-500">1.2 MB · 今天 09:30</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-primary transition-all-300">
+                          <i class="fa fa-download"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-danger transition-all-300">
+                          <i class="fa fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button class="mt-4 w-full py-2 border border-dashed border-gray-200 text-gray-500 rounded-lg text-sm font-medium hover:border-primary/50 hover:text-primary transition-all-300">
+                    <i class="fa fa-plus mr-1"></i> 添加更多资料
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 视频课程生成设置 -->
+            <div class="bg-white rounded-xl shadow-soft overflow-hidden">
+              <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold">生成课程视频</h2>
+                <p class="text-gray-500 text-sm mt-1">设置课程视频参数，生成AI授课视频</p>
+              </div>
+              
+              <div class="p-6">
+                <form>
+                  <!-- 课程信息 -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">课程标题</label>
+                      <input type="text" placeholder="输入课程标题" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all-300" value="函数的基本性质详解">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">课程分类</label>
+                      <select class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all-300 appearance-none bg-white">
+                        <option>高中数学</option>
+                        <option>初中物理</option>
+                        <option>小学语文</option>
+                        <option>英语</option>
+                        <option>其他</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <!-- 视频规格设置 -->
+                  <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3">视频规格设置</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label class="block text-xs text-gray-500 mb-1">分辨率</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all-300 appearance-none bg-white">
+                          <option>720p (标准)</option>
+                          <option>1080p (高清)</option>
+                          <option>4K (超清)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="block text-xs text-gray-500 mb-1">视频比例</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all-300 appearance-none bg-white">
+                          <option>16:9 ( widescreen )</option>
+                          <option>4:3 ( 标准 )</option>
+                          <option>9:16 ( 竖屏 )</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="block text-xs text-gray-500 mb-1">语速</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all-300 appearance-none bg-white">
+                          <option>正常</option>
+                          <option>较慢</option>
+                          <option>较快</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 高级选项 -->
+                  <div class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="text-sm font-medium text-gray-700">高级选项</h3>
+                      <button type="button" class="text-primary text-sm">
+                        <i class="fa fa-chevron-down"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="space-y-4 pl-1">
+                      <div class="flex items-center">
+                        <input type="checkbox" id="auto-add-questions" class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300 rounded">
+                        <label for="auto-add-questions" class="ml-2 text-sm text-gray-700">自动添加课后问题</label>
+                      </div>
+                      <div class="flex items-center">
+                        <input type="checkbox" id="add-table-of-contents" class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300 rounded" checked>
+                        <label for="add-table-of-contents" class="ml-2 text-sm text-gray-700">添加课程目录</label>
+                      </div>
+                      <div class="flex items-center">
+                        <input type="checkbox" id="auto-highlight" class="w-4 h-4 text-primary focus:ring-primary/30 border-gray-300 rounded" checked>
+                        <label for="auto-highlight" class="ml-2 text-sm text-gray-700">自动高亮重点内容</label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 生成按钮 -->
+                  <div class="flex justify-end space-x-3">
+                    <button type="button" class="px-6 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all-300">
+                      保存设置
+                    </button>
+                    <button type="button" class="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-all-300 flex items-center">
+                      <i class="fa fa-magic mr-2"></i> 生成课程视频
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // 模拟上传交互
+    document.addEventListener('DOMContentLoaded', function() {
+      // 视频上传区域点击事件
+      const videoUploadArea = document.getElementById('video-upload-area');
+      const uploadedVideo = document.getElementById('uploaded-video');
+      const generatedAI = document.getElementById('generated-ai');
+      
+      videoUploadArea.addEventListener('click', function() {
+        // 模拟上传成功
+        setTimeout(() => {
+          videoUploadArea.classList.add('hidden');
+          uploadedVideo.classList.remove('hidden');
+          
+          // 模拟进度更新
+          let progress = 65;
+          const progressBar = uploadedVideo.querySelector('.bg-primary');
+          const progressText = uploadedVideo.querySelector('.font-medium');
+          
+          const interval = setInterval(() => {
+            progress += 5;
+            if (progress >= 100) {
+              progress = 100;
+              clearInterval(interval);
+              
+              // 显示生成的AI形象
+              setTimeout(() => {
+                uploadedVideo.classList.add('hidden');
+                generatedAI.classList.remove('hidden');
+              }, 1000);
+            }
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress}%`;
+          }, 1000);
+        }, 1500);
+      });
+      
+      // 资料上传区域交互
+      const materialsUploadArea = document.getElementById('materials-upload-area');
+      materialsUploadArea.addEventListener('click', function() {
+        // 这里可以添加实际的文件上传逻辑
+        console.log('上传课程资料');
+      });
+    });
+  </script>
+</body>
+</html>
